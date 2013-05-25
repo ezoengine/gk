@@ -1,32 +1,37 @@
-;(function(window, func) {
+;
+(function (window, func) {
     var $ = window.jQuery;
     $ && func(window, window.document, $);
-})(window, function(window, document, $, undefined) {
-    var __extends = function(d, b) {
+})(window, function (window, document, $, undefined) {
+    var __extends = function (d, b) {
         function __() {
             this.constructor = d;
         }
+
         __.prototype = b.prototype;
         d.prototype = new __();
     };
 
-    var WebComponent = (function() {
+    var WebComponent = (function () {
         function WebComponent(args) {
             this.id = args;
             this.ele = $('#' + this.id);
             this.bindEvent();
         }
+
         var proto = WebComponent.prototype;
-        proto._init = function() {};
-        proto.init = function() {};
-        proto.removeDefAttr = function(ele, attr) {
+        proto._init = function () {
+        };
+        proto.init = function () {
+        };
+        proto.removeDefAttr = function (ele, attr) {
             if (arguments.length == 1) {
                 attr = ele;
                 ele = this.ele;
             }
             if (typeof attr === 'string') {
                 attr = [
-                attr];
+                    attr];
             }
             for (var i in attr) {
                 if ('${' + attr[i] + '}' === this.ele.attr(attr[i])) {
@@ -34,12 +39,12 @@
                 }
             }
         };
-        proto.replaceAttr = function(key, srcVal, repVal) {
+        proto.replaceAttr = function (key, srcVal, repVal) {
             if (this.ele.attr(key) == srcVal) {
                 this.ele.attr(key, repVal);
             }
         };
-        proto.setAttr = function(obj, keys) {
+        proto.setAttr = function (obj, keys) {
             for (var i = 0; i < keys.length; i++) {
                 var value = this.ele.attr(keys[i]);
                 if (value != '${' + keys[i] + '}') {
@@ -47,7 +52,7 @@
                 }
             }
         };
-        proto.bindEvent = function() {
+        proto.bindEvent = function () {
             var self = this;
             var elem = document.getElementById(this.id);
             if (elem == null) {
@@ -59,7 +64,7 @@
                     var eventName = attrib.name.substring(8);
                     var onXXXEvent = 'on' + eventName;
                     $(this.ele).unbind(eventName);
-                    this.ele.bind(eventName, function(evt) {
+                    this.ele.bind(eventName, function (evt) {
                         if (typeof(self[onXXXEvent]) == "function") {
                             self[onXXXEvent](evt);
                         }
@@ -67,19 +72,19 @@
                 }
             }
         };
-        proto.className = function() {
+        proto.className = function () {
             var funcNameRegex = /function (.{1,})\(/;
             var results = (funcNameRegex).exec((this)['constructor'].toString());
             var className = (results && results.length > 1) ? results[1] : "";
             return className.split('(')[0];
         };
-        proto.gkm = function() {
+        proto.gkm = function () {
             return CustomTag.gkm[this.id];
         };
-        proto.infoArray = function(info) {
+        proto.infoArray = function (info) {
             var replaceHTML = '';
             var _self = this;
-            $.each(info, function(idx, obj) {
+            $.each(info, function (idx, obj) {
                 var _newHTML = TagLibrary.template(_self.id);
                 for (var key in obj) {
                     if (obj.hasOwnProperty(key)) {
@@ -93,7 +98,7 @@
             replaceHTML = $.gk['toHTML'](replaceHTML);
             return replaceHTML;
         };
-        proto.infoObject = function(info) {
+        proto.infoObject = function (info) {
             var replaceHTML = '';
             var _newHTML = TagLibrary.template(this.id);
             for (var key in info) {
@@ -107,7 +112,7 @@
             replaceHTML = $.gk['toHTML'](replaceHTML);
             return replaceHTML;
         };
-        proto.template = function(html) {
+        proto.template = function (html) {
             if (html) {
                 TagLibrary.eventStore['template'][this.id] = html;
             } else {
@@ -117,9 +122,9 @@
         return WebComponent;
     })();
 
-    var TagUtils = (function() {
+    var TagUtils = (function () {
         var TagUtils = {};
-            fragDiv = document.createElement('div');
+        fragDiv = document.createElement('div');
         TagUtils.safeDocumentFrag = document.createDocumentFragment();
         TagUtils.safeDocumentFrag.appendChild(fragDiv);
         TagUtils.createElement = function createElement(tag) {
@@ -171,7 +176,7 @@
         return TagUtils;
     })();
 
-    var CustomTag = (function() {
+    var CustomTag = (function () {
         var CustomTag = {
             CLASS: 'use',
             gkm: {}
@@ -199,7 +204,7 @@
             repHTML = TU.innerHTML(processTagElement);
             this.gkm[id] = repHTML;
             newHTML = newHTML.replace(TL.gkm, repHTML);
-            $.each(processTagElement.attributes, function(idx, att) {
+            $.each(processTagElement.attributes, function (idx, att) {
                 var regex = new RegExp('\\${' + att.nodeName + '}', "gi");
                 newHTML = newHTML.replace(regex, att.nodeValue);
             });
@@ -210,7 +215,7 @@
         return CustomTag;
     })();
 
-    var TagLibrary = (function() {
+    var TagLibrary = (function () {
         var TagLibrary = {};
         TagLibrary.serial = 0;
         TagLibrary.customTags = {};
@@ -231,7 +236,7 @@
         };
         TagUtils.replaceElement = function replaceElement(originEle, newEle) {
             var originPar = originEle.parentNode;
-            while(newEle != null) {
+            while (newEle != null) {
                 var tmp = newEle.nextSibling;
                 originPar.insertBefore(newEle, originEle);
                 newEle = tmp;
@@ -239,7 +244,7 @@
             originPar.removeChild(originEle);
         };
         TagLibrary.process = function process(ele) {
-            var chk = $.type(ele), 
+            var chk = $.type(ele),
                 TL = TagLibrary;
             if (chk === "null" || chk === "undefined") {
                 return;
@@ -272,21 +277,21 @@
     })();
 
     var _gk = {
-        components : {
-            "WebComponent" : WebComponent
+        components: {
+            "WebComponent": WebComponent
         },
-        __extends : __extends,
-        TagLibrary : TagLibrary,
-        TagUtils : TagUtils,
-        CustomTag : CustomTag
+        __extends: __extends,
+        TagLibrary: TagLibrary,
+        TagUtils: TagUtils,
+        CustomTag: CustomTag
     };
 
-    var gk = function(selector) {
+    var gk = function (selector) {
         if (selector.indexOf('#') == 0) {
             return $(selector).data(TagLibrary.DATAKEY);
         }
         return {
-            html: function(setHTML) {
+            html: function (setHTML) {
                 var $selector = $(selector);
                 if (setHTML) {
                     $selector.html(setHTML);
@@ -297,8 +302,8 @@
                     return html;
                 }
             },
-            toHTML: function() {
-                $(selector).each(function(idx, ele) {
+            toHTML: function () {
+                $(selector).each(function (idx, ele) {
                     var $ele = $(ele),
                         gul = $ele.html(),
                         html = $.gk['toHTML'](gul);
@@ -306,12 +311,13 @@
                 });
             }
         };
-    }; 
+    };
 
     gk.version = "0.4";
     gk._gk = _gk;
+    _gk._class = {};
     gk.model = {};
-    gk.toHTML = function(html) {
+    gk.toHTML = function (html) {
         var ele = TagUtils.createDIVWrapper(html),
             newGKObj, val;
         TagLibrary.process(ele);
@@ -320,7 +326,7 @@
         TagLibrary.eventStore['script'] = [];
         return val.replace(/(\s*\w+=['"]\$\{\w+\}['"])|(\$\{\w+\})/g, "");
     };
-    gk.com = function(id, obj) {
+    gk.com = function (id, obj) {
         if (obj) {
             $('#' + id).data(TagLibrary.DATAKEY, obj);
             var model = $.gk['model'][id];
@@ -337,7 +343,21 @@
             return $('#' + id).data(TagLibrary.DATAKEY);
         }
     };
-    gk.init = function(){
+    gk.registry = function (classes) {
+        //create component's function
+        $.each(classes, function (idx, clazz) {
+            //registry Tag
+            clazz.name = clazz.name.toUpperCase();
+            TagLibrary.customTags[clazz.name] = $("<gk:view use='" + clazz.name + "'>" + clazz.template + "</gk:view>")[0];
+            var newComponent = function (id) {
+                WebComponent.call(this, id);
+            };
+            _gk.__extends(newComponent, WebComponent);
+            clazz.script.call(newComponent.prototype);
+            _gk.components[clazz.name] = newComponent;
+        });
+    };
+    gk.init = function () {
         $('[gk-app]').each(function (idx, ele) {
             var $ele = $(ele);
             var html = $.gk['toHTML']($ele.html());
@@ -354,13 +374,13 @@
         });
     };
     $.gk = gk;
-    $.fn.gk = function(method) {
+    $.fn.gk = function (method) {
         if (arguments.length == 0) {
             return $(this).data(TagLibrary.DATAKEY);
         }
         var options = Array.prototype.slice.call(arguments, 1),
             firstResult;
-        this.each(function(idx, ele) {
+        this.each(function (idx, ele) {
             var gkObj = $(ele).data(TagLibrary.DATAKEY);
             if (gkObj instanceof Object && $.type(gkObj[method]) === "function") {
                 var result = gkObj[method].apply(gkObj, options);
@@ -371,13 +391,15 @@
         });
         return firstResult;
     };
-    if(typeof define ==='function'){
-    	define(function(){return $.gk._gk;});
-    } else{
-	    var $doc = $(document);
-	    $doc.triggerHandler("gkComponentsInit");
-	    $doc.ready(function() {
-	    	$.gk.init();
-	    });
+    if (typeof define === 'function') {
+        define(function () {
+            return $.gk._gk;
+        });
+    } else {
+        var $doc = $(document);
+        $doc.triggerHandler("gkComponentsInit");
+        $doc.ready(function () {
+            $.gk.init();
+        });
     }
 });
