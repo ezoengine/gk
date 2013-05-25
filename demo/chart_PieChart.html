@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<script data-main='js/main' src='js/require/require.js'></script>
+</head>
+<body gk-app>
+	<input type='button' value='Render' onclick='btn()'>
+	<piechart id="chart" direction="east" width="100%" height="100%"
+		cx="100" cy="100" radius="70" />
+	<script>
+		function btn() {
+			$('#chart').gk('render',{
+				"## A" : 342,"## B" : 11,
+				"## C" : 29,"## D" : 96
+			});
+		}
+	</script>
+</body>
+</html>
