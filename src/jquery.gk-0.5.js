@@ -334,7 +334,10 @@
             gk.components[clazz.name] = newComponent;
         });
     };
-    gk.init = function () {
+    gk.init = function (components) {
+        if (arguments.length > 0) {
+            $.gk.registry(components);
+        }
         $('[gk-app]').each(function (idx, ele) {
             var $ele = $(ele);
             var html = $.gk['toHTML']($ele.html());

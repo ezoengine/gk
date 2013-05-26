@@ -10,6 +10,5 @@ require.config({
 });
 
 define(['gmap', 'piechart'], function () {
-    $.gk.registry(arguments);
-    $.gk.init();
+    $.gk.init(arguments);
 });
