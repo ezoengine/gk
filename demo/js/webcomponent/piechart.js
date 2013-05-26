@@ -20,7 +20,7 @@ define(['gk', 'g.pie'], function (gk) {
         template: "<div id='${id}' width='${width}' height='${height}' cx='${cx}' cy='${cy}' direction='${direction}' radius='${radius}'></div>${content}",
         script: function () {
             var cx = 190, cy = 190, direction = 'north', r, radius = 100;
-            this._init = function () {
+            this.init = function () {
                 this.ele.parent().css('width', '100%');
                 this.ele.parent().css('height', '100%');
                 var w = this.ele.attr('width');

@@ -354,6 +354,9 @@
             };
             _gk.__extends(newComponent, WebComponent);
             clazz.script.call(newComponent.prototype);
+            newComponent.prototype._init = newComponent.prototype.init;
+            newComponent.prototype.init = function () {
+            };
             _gk.components[clazz.name] = newComponent;
         });
     };

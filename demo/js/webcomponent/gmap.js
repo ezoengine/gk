@@ -19,7 +19,7 @@ define(['gk', 'domReady'], function (gk) {
                     obj.initialize();
                 });
             };
-            this._init = function () {
+            this.init = function () {
                 this.options = {};
                 var h = document.documentElement.clientHeight;
                 var w = document.documentElement.clientWidth;
