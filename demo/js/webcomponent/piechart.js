@@ -42,6 +42,7 @@ define(['gk', 'g.pie'], function (gk) {
                 r = Raphael(this.id);
             };
             this.onclick = function () {
+                console.log('piechart component.');
             };
             this.render = function () {
                 if (arguments.length == 1) {

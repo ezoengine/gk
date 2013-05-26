@@ -28,7 +28,6 @@ define(['gk', 'domReady'], function (gk) {
                 } else {
                     this.ele.attr('style', this.ele.attr('data-gk-style'));
                 }
-                this.replaceAttr('data-gk-click', '${onclick}', '');
                 $(this.ele).parent().attr('style', $(this.ele).attr('style'));
                 this.options['zoom'] = this.ele.attr('zoom') ? parseInt(this.ele.attr('zoom')) : '12';
                 this.options['mapTypeId'] = this.ele.attr('type') ? this.ele.attr('type') : ROADMAP;

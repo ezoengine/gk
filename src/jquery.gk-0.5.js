@@ -20,38 +20,12 @@
         }
 
         var proto = WebComponent.prototype;
-        proto._init = function () {
-        };
+
         proto.init = function () {
         };
-        proto.removeDefAttr = function (ele, attr) {
-            if (arguments.length == 1) {
-                attr = ele;
-                ele = this.ele;
-            }
-            if (typeof attr === 'string') {
-                attr = [
-                    attr];
-            }
-            for (var i in attr) {
-                if ('${' + attr[i] + '}' === this.ele.attr(attr[i])) {
-                    this.ele.removeAttr(attr[i]);
-                }
-            }
+        proto._init = function () {
         };
-        proto.replaceAttr = function (key, srcVal, repVal) {
-            if (this.ele.attr(key) == srcVal) {
-                this.ele.attr(key, repVal);
-            }
-        };
-        proto.setAttr = function (obj, keys) {
-            for (var i = 0; i < keys.length; i++) {
-                var value = this.ele.attr(keys[i]);
-                if (value != '${' + keys[i] + '}') {
-                    obj[keys[i]] = value;
-                }
-            }
-        };
+
         proto.bindEvent = function () {
             var self = this;
             var elem = document.getElementById(this.id);
@@ -199,16 +173,24 @@
             } else {
                 id = processTagElement.id;
             }
-            script = "$.gk.com('" + id + "' , new $.gk._gk.components['" + clazz + "']('" + id + "'));";
+            script = "$.gk.com('" + id + "' , new $.gk.components['" + clazz + "']('" + id + "'));";
             TL.eventStore['script'].push(script);
             repHTML = TU.innerHTML(processTagElement);
             this.gkm[id] = repHTML;
             newHTML = newHTML.replace(TL.gkm, repHTML);
+            var onEvent = [];
             $.each(processTagElement.attributes, function (idx, att) {
+                if (att.nodeName.indexOf('on') == 0) {
+                    onEvent.push([att.nodeName, att.nodeValue]);
+                }
+                ;
                 var regex = new RegExp('\\${' + att.nodeName + '}', "gi");
                 newHTML = newHTML.replace(regex, att.nodeValue);
             });
             var newNode = TU.toElement(newHTML);
+            $.each(onEvent, function (idx, evt) {
+                $(newNode).attr(evt[0], evt[1]);
+            });
             TU.replaceElement(processTagElement, newNode);
             return newNode;
         };
@@ -276,15 +258,6 @@
         return TagLibrary;
     })();
 
-    var _gk = {
-        components: {
-            "WebComponent": WebComponent
-        },
-        __extends: __extends,
-        TagLibrary: TagLibrary,
-        TagUtils: TagUtils,
-        CustomTag: CustomTag
-    };
 
     var gk = function (selector) {
         if (selector.indexOf('#') == 0) {
@@ -314,8 +287,9 @@
     };
 
     gk.version = "0.4";
-    gk._gk = _gk;
-    _gk._class = {};
+    gk.components = {
+        "WebComponent": WebComponent
+    };
     gk.model = {};
     gk.toHTML = function (html) {
         var ele = TagUtils.createDIVWrapper(html),
@@ -352,9 +326,12 @@
             var newComponent = function (id) {
                 WebComponent.call(this, id);
             };
-            _gk.__extends(newComponent, WebComponent);
+            __extends(newComponent, WebComponent);
             clazz.script.call(newComponent.prototype);
-            _gk.components[clazz.name] = newComponent;
+            newComponent.prototype._init = newComponent.prototype.init;
+            newComponent.prototype.init = function () {
+            };
+            gk.components[clazz.name] = newComponent;
         });
     };
     gk.init = function () {
@@ -367,7 +344,7 @@
             var $ele = $(ele),
                 id = $ele.attr('id'),
                 com = $ele.attr('gk-obj'),
-                component = $.gk._gk.components[com];
+                component = $.gk.components[com];
             if (component) {
                 $.gk.com(id, component(id));
             }
@@ -393,7 +370,7 @@
     };
     if (typeof define === 'function') {
         define(function () {
-            return $.gk._gk;
+            return $.gk;
         });
     } else {
         var $doc = $(document);

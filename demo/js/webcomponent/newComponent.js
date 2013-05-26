@@ -8,7 +8,7 @@ define(['$module'], function (gk) {
         name: '$tagName',
         template: "$template",
         script: function () {
-            this._init = function () {
+            this.init = function () {
             };
         }
     };
