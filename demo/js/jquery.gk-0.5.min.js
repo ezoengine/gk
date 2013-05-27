@@ -317,7 +317,9 @@
     gk.registry = function (classes) {
         //create component's function
         $.each(classes, function (idx, clazz) {
-            //registry Tag
+            if (typeof clazz === 'function') {
+                return;
+            }
             clazz.name = clazz.name.toUpperCase();
             TagLibrary.customTags[clazz.name] = $("<gk:view use='" + clazz.name + "'>" + clazz.template + "</gk:view>")[0];
             var newComponent = function (id) {
