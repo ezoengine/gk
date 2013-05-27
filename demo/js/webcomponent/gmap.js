@@ -2,9 +2,9 @@
 define(['gk', 'domReady'], function (gk) {
     return {
         name: 'gmap',
-        template: "<div style='${style}'>" +
-            "<div id='${id}' style='${style}' zoom='${zoom}' type='${type}' data-gk-click='${onclick}'></div>" +
-            "<div >${content}</div>" +
+        template: "<div style='{{style}}'>" +
+            "<div id='{{id}}' style='{{style}}' zoom='{{zoom}}' type='{{type}}' data-gk-click='{{onclick}}'></div>" +
+            "<div >{{content}}</div>" +
             "</div>",
         script: function () {
             var initGoogleMapScript = 'stop';
@@ -23,20 +23,20 @@ define(['gk', 'domReady'], function (gk) {
                 this.options = {};
                 var h = document.documentElement.clientHeight;
                 var w = document.documentElement.clientWidth;
-                if (this.ele.attr('data-gk-style') === '${style}') {
-                    this.ele.css({width: w + 'px', height: h + 'px'});
+                if (this.$ele.attr('data-gk-style') === '{{style}}') {
+                    this.$ele.css({width: w + 'px', height: h + 'px'});
                 } else {
-                    this.ele.attr('style', this.ele.attr('data-gk-style'));
+                    this.$ele.attr('style', this.$ele.attr('data-gk-style'));
                 }
-                $(this.ele).parent().attr('style', $(this.ele).attr('style'));
-                this.options['zoom'] = this.ele.attr('zoom') ? parseInt(this.ele.attr('zoom')) : '12';
-                this.options['mapTypeId'] = this.ele.attr('type') ? this.ele.attr('type') : ROADMAP;
-                this._address = $.trim(this.ele[0].innerHTML);
+                $(this.$ele).parent().attr('style', $(this.$ele).attr('style'));
+                this.options['zoom'] = this.$ele.attr('zoom') ? parseInt(this.$ele.attr('zoom')) : '12';
+                this.options['mapTypeId'] = this.$ele.attr('type') ? this.$ele.attr('type') : ROADMAP;
+                this._address = $.trim(this.$ele[0].innerHTML);
                 this.initMap();
             };
             this.height = function (h) {
                 if (h) {
-                    $(this.ele).css('height', h);
+                    $(this.$ele).css('height', h);
                     this._height = h;
                     google.maps.event.trigger(this.map, "resize");
                 } else {
@@ -45,7 +45,7 @@ define(['gk', 'domReady'], function (gk) {
             };
             this.width = function (w) {
                 if (w) {
-                    $(this.ele).css('width', w);
+                    $(this.$ele).css('width', w);
                     this._width = w;
                     google.maps.event.trigger(this.map, "resize");
                 } else {
@@ -78,7 +78,6 @@ define(['gk', 'domReady'], function (gk) {
                 } else {
                     this.options['center'] = new google.maps.LatLng(22.604943497851177, 120.30919253826141);
                     this.map = new google.maps.Map(document.getElementById(this.id), this.options);
-                    console.log(this.map);
                     this.init();
                 }
             };

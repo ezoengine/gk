@@ -17,28 +17,28 @@ require.config({
 define(['gk', 'g.pie'], function (gk) {
     return {
         name: 'piechart',
-        template: "<div id='${id}' width='${width}' height='${height}' cx='${cx}' cy='${cy}' direction='${direction}' radius='${radius}'></div>${content}",
+        template: "<div id='{{id}}' width='{{width}}' height='{{height}}' cx='{{cx}}' cy='{{cy}}' direction='{{direction}}' radius='{{radius}}'></div>{{content}}",
         script: function () {
             var cx = 190, cy = 190, direction = 'north', r, radius = 100;
             this.init = function () {
-                this.ele.parent().css('width', '100%');
-                this.ele.parent().css('height', '100%');
-                var w = this.ele.attr('width');
-                var h = this.ele.attr('height');
-                if (this.ele.attr('direction') != '${direction}') {
-                    direction = this.ele.attr('direction');
+                this.$ele.parent().css('width', '100%');
+                this.$ele.parent().css('height', '100%');
+                var w = this.$ele.attr('width');
+                var h = this.$ele.attr('height');
+                if (this.$ele.attr('direction') != '${direction}') {
+                    direction = this.$ele.attr('direction');
                 }
-                if (this.ele.attr('radius') != '${radius}') {
-                    radius = parseInt(this.ele.attr('radius'));
+                if (this.$ele.attr('radius') != '${radius}') {
+                    radius = parseInt(this.$ele.attr('radius'));
                 }
-                if (this.ele.attr('cx') != '${cx}') {
-                    cx = parseInt(this.ele.attr('cx'));
+                if (this.$ele.attr('cx') != '${cx}') {
+                    cx = parseInt(this.$ele.attr('cx'));
                 }
-                if (this.ele.attr('cy') != '${cy}') {
-                    cy = parseInt(this.ele.attr('cy'));
+                if (this.$ele.attr('cy') != '${cy}') {
+                    cy = parseInt(this.$ele.attr('cy'));
                 }
-                this.ele.css('width', w === '${width}' ? '480px' : w);
-                this.ele.css('height', h === '${height}' ? '480px' : h);
+                this.$ele.css('width', w === '${width}' ? '480px' : w);
+                this.$ele.css('height', h === '${height}' ? '480px' : h);
                 r = Raphael(this.id);
             };
             this.onclick = function () {
