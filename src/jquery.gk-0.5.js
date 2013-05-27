@@ -295,7 +295,7 @@
         newGKObj = (TagLibrary.eventStore['script'] || []).join(' ');
         val = ele.innerHTML + '<script>' + newGKObj + '</script>';
         TagLibrary.eventStore['script'] = [];
-        return val.replace(/(\s*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
+        return val.replace(/(\S*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
     };
     gk.com = function (id, obj) {
         if (obj) {
