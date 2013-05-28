@@ -33,16 +33,11 @@
                 return;
             }
             for (var i = 0; i < elem.attributes.length; i++) {
-                var attrib = elem.attributes[i];
-                if (attrib.name.indexOf('data-gk-') == 0) {
-                    var eventName = attrib.name.substring(8);
-                    var onXXXEvent = 'on' + eventName;
+                var attr = elem.attributes[i];
+                if (attr.name.indexOf('data-gk-') == 0) {
+                    var eventName = attr.name.substring(8);
                     this.$ele.unbind(eventName);
-                    this.$ele.bind(eventName, function (evt) {
-                        if (typeof(self[onXXXEvent]) == "function") {
-                            self[onXXXEvent](evt);
-                        }
-                    });
+                    this.$ele.bind(eventName, self['on' + eventName]);
                 }
             }
         };
@@ -89,16 +84,15 @@
         proto.template = function (html) {
             if (html) {
                 TagLibrary.eventStore['template'][this.id] = html;
-            } else {
-                return TagLibrary.eventStore['template'][this.id];
             }
+            return TagLibrary.eventStore['template'][this.id];
         };
         return WebComponent;
     })();
 
     var TagUtils = (function () {
         var TagUtils = {};
-        fragDiv = document.createElement('div');
+        var fragDiv = document.createElement('div');
         TagUtils.safeDocumentFrag = document.createDocumentFragment();
         TagUtils.safeDocumentFrag.appendChild(fragDiv);
         TagUtils.createElement = function createElement(tag) {
@@ -164,44 +158,40 @@
             CLASS: 'use',
             gkm: {}
         };
-        CustomTag.replaceWith = function replaceWith(element) {
-            if (typeof element === 'undefined') {
-                return;
+        CustomTag.replaceWith = function replaceWith(processTagElement) {
+            if (typeof processTagElement === 'undefined') {
+                return null;
             }
-            var TL = TagLibrary,
-                TU = TagUtils,
-                processTagElement = element,
-                customTagElement = TU.cloneNode(TL.customTags[element.nodeName.toUpperCase()]),
+            var customTagElement = TagUtils.cloneNode(TagLibrary.customTags[processTagElement.nodeName.toUpperCase()]),
                 $customTagElement = $(customTagElement),
                 clazz = $customTagElement.attr(this.CLASS) || 'WebComponent',
                 newHTML = $customTagElement.html(),
                 script, id, repHTML;
 
             if (typeof processTagElement.id === 'undefined' || processTagElement.id === '') {
-                id = processTagElement.id = TL.getGenId();
+                id = processTagElement.id = TagLibrary.getGenId();
             } else {
                 id = processTagElement.id;
             }
             script = "$.gk.com('" + id + "' , new $.gk.components['" + clazz + "']('" + id + "'));";
-            TL.eventStore['script'].push(script);
-            repHTML = TU.innerHTML(processTagElement);
+            TagLibrary.eventStore['script'].push(script);
+            repHTML = TagUtils.innerHTML(processTagElement);
             CustomTag.gkm[id] = repHTML;
-            newHTML = newHTML.replace(TL.content, repHTML);
-            newHTML = $.gk.components[element.nodeName].prototype.beforeParse(newHTML);
+            newHTML = newHTML.replace(TagLibrary.content, repHTML);
+            newHTML = $.gk.components[processTagElement.nodeName.toUpperCase()].prototype['beforeParse'](newHTML);
             var onEvent = [];
             $.each(processTagElement.attributes, function (idx, att) {
                 if (att.nodeName.indexOf('on') == 0) {
                     onEvent.push([att.nodeName, att.nodeValue]);
                 }
-                ;
                 var regex = new RegExp('{{' + att.nodeName + '}}', "gi");
                 newHTML = newHTML.replace(regex, att.nodeValue);
             });
-            var newNode = TU.toElement(newHTML);
+            var newNode = TagUtils.toElement(newHTML);
             $.each(onEvent, function (idx, evt) {
                 $(newNode).attr(evt[0], evt[1]);
             });
-            TU.replaceElement(processTagElement, newNode);
+            TagUtils.replaceElement(processTagElement, newNode);
             return newNode;
         };
         return CustomTag;
@@ -224,26 +214,25 @@
             return this.eventStore['template'][id];
         };
         TagLibrary.isComponent = function isComponent(tagName) {
-            return this.customTags[tagName.toUpperCase()];
+            return TagLibrary.customTags[tagName.toUpperCase()];
         };
         TagLibrary.process = function process(ele) {
-            var chk = $.type(ele),
-                TL = TagLibrary;
+            var chk = $.type(ele);
             if (chk === "null" || chk === "undefined") {
                 return;
             }
             var nodeName = ele.nodeName.toUpperCase();
             if (nodeName === 'TEMPLATE') {
                 var id = $(ele.parentNode).attr('id');
-                TL.eventStore['template'][id] = ele.innerHTML;
+                TagLibrary.eventStore['template'][id] = ele.innerHTML;
                 ele.innerHTML = '';
             }
-            if (TL.isComponent(nodeName)) {
-                TL.process(CustomTag.replaceWith(ele));
+            if (TagLibrary.isComponent(nodeName)) {
+                TagLibrary.process(CustomTag.replaceWith(ele));
             } else if (ele.firstChild) {
-                TL.process(ele.firstChild);
+                TagLibrary.process(ele.firstChild);
             } else if (ele.nextSibling) {
-                TL.process(ele.nextSibling);
+                TagLibrary.process(ele.nextSibling);
             } else if (ele.parentNode && ele.parentNode.parentNode) {
                 ele = ele.parentNode;
                 while (ele.nextSibling == null) {
@@ -253,7 +242,7 @@
                         return;
                     }
                 }
-                TL.process(ele.nextSibling);
+                TagLibrary.process(ele.nextSibling);
             }
         };
         return TagLibrary;
@@ -263,6 +252,12 @@
         version: "0.5",
         components: {"WebComponent": WebComponent},
         model: {},
+        createTag: function (tages) {
+            for (var i in tages) {
+                TagUtils.createElement(tages[i].replace(/\S*\//g, ''));
+            }
+            ;
+        },
         init: function (components) {
             if (arguments.length > 0) {
                 $.gk.registry(components);
@@ -309,28 +304,24 @@
             });
         },
         com: function (id, obj) {
-            if (obj) {
-                $('#' + id).data(TagLibrary.DATAKEY, obj);
-                var model = $.gk['model'][id];
-                if (model) {
-                    for (var prop in model) {
-                        if (model.hasOwnProperty(prop)) {
-                            obj[prop] = model[prop];
-                        }
+            $('#' + id).data(TagLibrary.DATAKEY, obj);
+            var model = $.gk['model'][id];
+            if (model) {
+                for (var prop in model) {
+                    if (model.hasOwnProperty(prop)) {
+                        obj[prop] = model[prop];
                     }
                 }
-                obj['_init']();
-                obj['init']();
-            } else {
-                return $('#' + id).data(TagLibrary.DATAKEY);
             }
+            obj['_init']();
+            obj['init']();
         }
     };
     $.fn.gk = function (method) {
         if (arguments.length == 0) {
             return $(this).data(TagLibrary.DATAKEY);
         }
-        var options = Array.prototype.slice.call(arguments, 1), firstResult;
+        var options = Array.prototype.slice.call(arguments, 1), firstResult = null;
         this.each(function (idx, ele) {
             var gkObj = $(ele).data(TagLibrary.DATAKEY);
             if (gkObj instanceof Object && $.type(gkObj[method]) === "function") {
