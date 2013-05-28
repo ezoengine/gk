@@ -23,6 +23,9 @@
 
         proto.init = proto._init = function () {
         };
+        proto.beforeParse = function (html) {
+            return html;
+        };
         proto.bindEvent = function () {
             var self = this;
             var elem = document.getElementById(this.id);
@@ -120,6 +123,15 @@
             }
             return clone;
         };
+        TagUtils.replaceElement = function replaceElement(originEle, newEle) {
+            var originPar = originEle.parentNode;
+            while (newEle != null) {
+                var tmp = newEle.nextSibling;
+                originPar.insertBefore(newEle, originEle);
+                newEle = tmp;
+            }
+            originPar.removeChild(originEle);
+        };
         TagUtils.toElement = function toElement(html) {
             var _div = TagUtils.createDIVWrapper(html);
             return _div.firstChild;
@@ -173,8 +185,9 @@
             script = "$.gk.com('" + id + "' , new $.gk.components['" + clazz + "']('" + id + "'));";
             TL.eventStore['script'].push(script);
             repHTML = TU.innerHTML(processTagElement);
-            this.gkm[id] = repHTML;
-            newHTML = newHTML.replace(TL.gkm, repHTML);
+            CustomTag.gkm[id] = repHTML;
+            newHTML = newHTML.replace(TL.content, repHTML);
+            newHTML = $.gk.components[element.nodeName].prototype.beforeParse(newHTML);
             var onEvent = [];
             $.each(processTagElement.attributes, function (idx, att) {
                 if (att.nodeName.indexOf('on') == 0) {
@@ -198,7 +211,7 @@
         var TagLibrary = {};
         TagLibrary.serial = 0;
         TagLibrary.customTags = {};
-        TagLibrary.gkm = "{{content}}";
+        TagLibrary.content = "{{content}}";
         TagLibrary.DATAKEY = "_gk_";
         TagLibrary.genIdPrefix = "_gk_gen_";
         TagLibrary.eventStore = [];
@@ -212,15 +225,6 @@
         };
         TagLibrary.isComponent = function isComponent(tagName) {
             return this.customTags[tagName.toUpperCase()];
-        };
-        TagUtils.replaceElement = function replaceElement(originEle, newEle) {
-            var originPar = originEle.parentNode;
-            while (newEle != null) {
-                var tmp = newEle.nextSibling;
-                originPar.insertBefore(newEle, originEle);
-                newEle = tmp;
-            }
-            originPar.removeChild(originEle);
         };
         TagLibrary.process = function process(ele) {
             var chk = $.type(ele),
@@ -255,110 +259,78 @@
         return TagLibrary;
     })();
 
-
-    var gk = function (selector) {
-        if (selector.indexOf('#') == 0) {
-            return $(selector).data(TagLibrary.DATAKEY);
-        }
-        return {
-            html: function (setHTML) {
-                var $selector = $(selector);
-                if (setHTML) {
-                    $selector.html(setHTML);
-                    return $selector;
-                } else {
-                    var gul = $selector.html(),
-                        html = $.gk['toHTML'](gul);
-                    return html;
-                }
-            },
-            toHTML: function () {
-                $(selector).each(function (idx, ele) {
-                    var $ele = $(ele),
-                        gul = $ele.html(),
-                        html = $.gk['toHTML'](gul);
-                    $ele.html(html);
-                });
+    $.gk = {
+        version: "0.5",
+        components: {"WebComponent": WebComponent},
+        model: {},
+        init: function (components) {
+            if (arguments.length > 0) {
+                $.gk.registry(components);
             }
-        };
-    };
-
-    gk.version = "0.5";
-    gk.components = {
-        "WebComponent": WebComponent
-    };
-    gk.model = {};
-    gk.toHTML = function (html) {
-        var ele = TagUtils.createDIVWrapper(html),
-            newGKObj, val;
-        TagLibrary.process(ele);
-        newGKObj = (TagLibrary.eventStore['script'] || []).join(' ');
-        val = ele.innerHTML + '<script>' + newGKObj + '</script>';
-        TagLibrary.eventStore['script'] = [];
-        return val.replace(/(\S*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
-    };
-    gk.com = function (id, obj) {
-        if (obj) {
-            $('#' + id).data(TagLibrary.DATAKEY, obj);
-            var model = $.gk['model'][id];
-            if (model) {
-                for (var prop in model) {
-                    if (model.hasOwnProperty(prop)) {
-                        obj[prop] = model[prop];
+            $('[gk-app]').each(function (idx, ele) {
+                var $ele = $(ele);
+                var html = $.gk['toHTML']($ele.html());
+                $ele.html(html);
+            });
+            $('*[gk-obj]').each(function (idx, ele) {
+                var $ele = $(ele),
+                    id = $ele.attr('id'),
+                    com = $ele.attr('gk-obj'),
+                    component = $.gk.components[com];
+                if (component) {
+                    $.gk.com(id, component(id));
+                }
+            });
+        },
+        toHTML: function (html) {
+            var ele = TagUtils.createDIVWrapper(html), newGKObj, val;
+            TagLibrary.process(ele);
+            newGKObj = (TagLibrary.eventStore['script'] || []).join(' ');
+            val = ele.innerHTML + '<script>' + newGKObj + '</script>';
+            TagLibrary.eventStore['script'] = [];
+            return val.replace(/(\S*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
+        },
+        registry: function (classes) {
+            $.each(classes, function (idx, clazz) {
+                if (typeof clazz === 'function') {
+                    return;
+                }
+                clazz.name = clazz.name.toUpperCase();
+                TagLibrary.customTags[clazz.name] = $("<gk:view use='" + clazz.name + "'>" + clazz.template + "</gk:view>")[0];
+                var newComponent = function (id) {
+                    WebComponent.call(this, id);
+                };
+                __extends(newComponent, WebComponent);
+                clazz.script.call(newComponent.prototype);
+                newComponent.prototype._init = newComponent.prototype.init;
+                newComponent.prototype.init = function () {
+                };
+                $.gk.components[clazz.name] = newComponent;
+            });
+        },
+        com: function (id, obj) {
+            if (obj) {
+                $('#' + id).data(TagLibrary.DATAKEY, obj);
+                var model = $.gk['model'][id];
+                if (model) {
+                    for (var prop in model) {
+                        if (model.hasOwnProperty(prop)) {
+                            obj[prop] = model[prop];
+                        }
                     }
                 }
+                obj['_init']();
+                obj['init']();
+            } else {
+                return $('#' + id).data(TagLibrary.DATAKEY);
             }
-            obj['_init']();
-            obj['init']();
-        } else {
-            return $('#' + id).data(TagLibrary.DATAKEY);
         }
     };
-    gk.registry = function (classes) {
-        //create component's function
-        $.each(classes, function (idx, clazz) {
-            if (typeof clazz === 'function') {
-                return;
-            }
-            clazz.name = clazz.name.toUpperCase();
-            TagLibrary.customTags[clazz.name] = $("<gk:view use='" + clazz.name + "'>" + clazz.template + "</gk:view>")[0];
-            var newComponent = function (id) {
-                WebComponent.call(this, id);
-            };
-            __extends(newComponent, WebComponent);
-            clazz.script.call(newComponent.prototype);
-            newComponent.prototype._init = newComponent.prototype.init;
-            newComponent.prototype.init = function () {
-            };
-            gk.components[clazz.name] = newComponent;
-        });
-    };
-    gk.init = function (components) {
-        if (arguments.length > 0) {
-            $.gk.registry(components);
-        }
-        $('[gk-app]').each(function (idx, ele) {
-            var $ele = $(ele);
-            var html = $.gk['toHTML']($ele.html());
-            $ele.html(html);
-        });
-        $('*[gk-obj]').each(function (idx, ele) {
-            var $ele = $(ele),
-                id = $ele.attr('id'),
-                com = $ele.attr('gk-obj'),
-                component = $.gk.components[com];
-            if (component) {
-                $.gk.com(id, component(id));
-            }
-        });
-    };
-    $.gk = gk;
     $.fn.gk = function (method) {
         if (arguments.length == 0) {
             return $(this).data(TagLibrary.DATAKEY);
         }
-        var options = Array.prototype.slice.call(arguments, 1),
-            firstResult;
+        var options = Array.prototype.slice.call(arguments, 1), firstResult;
         this.each(function (idx, ele) {
             var gkObj = $(ele).data(TagLibrary.DATAKEY);
             if (gkObj instanceof Object && $.type(gkObj[method]) === "function") {
