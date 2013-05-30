@@ -81,12 +81,6 @@
             replaceHTML = $.gk['toHTML'](replaceHTML);
             return replaceHTML;
         };
-        proto.template = function (html) {
-            if (html) {
-                TagLibrary.eventStore['template'][this.id] = html;
-            }
-            return TagLibrary.eventStore['template'][this.id];
-        };
         return WebComponent;
     })();
 
@@ -256,7 +250,6 @@
             for (var i in tages) {
                 TagUtils.createElement(tages[i].replace(/\S*\//g, ''));
             }
-            ;
         },
         init: function (components) {
             if (arguments.length > 0) {
