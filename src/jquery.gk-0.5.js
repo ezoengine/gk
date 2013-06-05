@@ -274,7 +274,7 @@
             var ele = TagUtils.createDIVWrapper(html), newGKObj, val;
             TagLibrary.process(ele);
             newGKObj = (TagLibrary.eventStore['script'] || []).join(' ');
-            val = ele.innerHTML + '<script>' + newGKObj + '</script>';
+            val = newGKObj.length > 0 ? ele.innerHTML + '<script>' + newGKObj + '</script>' : ele.innerHTML;
             TagLibrary.eventStore['script'] = [];
             return val.replace(/(\S*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
         },
