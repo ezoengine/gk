@@ -10,7 +10,7 @@ loadCss('js/jquerymobile/jquery.mobile-1.3.1.min.css');
 define(['gk'], function () {
     return {
         name: 'page',
-        template: "<div id='{{id}}' data-gk-click='{{onclick}}' data-role='page' class='{{class}}'>{{content}}</div>",
+        template: "<div id='{{id}}' data-gk-click='{{onclick}}' data-role='page' class='{{class}}'><content></content></div>",
         script: function () {
             this.init = function () {
             };

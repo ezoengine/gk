@@ -195,7 +195,7 @@
         var TagLibrary = {};
         TagLibrary.serial = 0;
         TagLibrary.customTags = {};
-        TagLibrary.content = "{{content}}";
+        TagLibrary.content = "<content></content>";
         TagLibrary.DATAKEY = "_gk_";
         TagLibrary.genIdPrefix = "_gk_gen_";
         TagLibrary.eventStore = [];

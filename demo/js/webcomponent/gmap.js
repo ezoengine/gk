@@ -4,7 +4,7 @@ define(['gk', 'domReady'], function (gk) {
         name: 'gmap',
         template: "<div style='{{style}}'>" +
             "<div id='{{id}}' style='{{style}}' zoom='{{zoom}}' type='{{type}}' data-gk-click='{{onclick}}'></div>" +
-            "<div >{{content}}</div>" +
+            "<div ><content></content></div>" +
             "</div>",
         script: function () {
             var initGoogleMapScript = 'stop';

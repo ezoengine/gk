@@ -2,7 +2,7 @@
 define(['gk'], function () {
     return {
         name: 'header',
-        template: "<div id='{{id}}' persist='{{persist}}' data-gk-click='{{onclick}}' data-position='fixed' data-role='header' >" + "  <h1>{{label}}</h1>{{content}}" + "</div>",
+        template: "<div id='{{id}}' persist='{{persist}}' data-gk-click='{{onclick}}' data-position='fixed' data-role='header' >" + "  <h1>{{label}}</h1><content></content>" + "</div>",
         script: function () {
             this.init = function () {
             };

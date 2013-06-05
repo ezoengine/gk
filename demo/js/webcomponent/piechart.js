@@ -17,7 +17,7 @@ require.config({
 define(['gk', 'g.pie'], function (gk) {
     return {
         name: 'piechart',
-        template: "<div id='{{id}}' width='{{width}}' height='{{height}}' cx='{{cx}}' cy='{{cy}}' direction='{{direction}}' radius='{{radius}}'></div>{{content}}",
+        template: "<div id='{{id}}' width='{{width}}' height='{{height}}' cx='{{cx}}' cy='{{cy}}' direction='{{direction}}' radius='{{radius}}'></div><content></content>",
         script: function () {
             var cx = 190, cy = 190, direction = 'north', r, radius = 100;
             this.init = function () {
