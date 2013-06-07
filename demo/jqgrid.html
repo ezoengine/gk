@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script src='js/require/require.js'></script>
+    <script src='js/main.js'></script>
+    <script>
+        require(['jquery', 'gk'], function() {
+            $.gk.model['jq'] = {
+                init : function () {
+                    var mydata = [];
+                    for (var i = 0; i < 20; i++) {
+                        mydata.push({
+                          'invdate': '2007-09-01',
+                          'name': 'test' + i,
+                          'note': 'note' + i,
+                          'amount': "200.00",
+                          'tax': '20.00',
+                          'total': '430.00'
+                        });
+                    }
+                    $('#jq').gk('info', mydata);
+                }
+            }
+        })
+    </script>
+</head>
+<body gk-app>
+    <JQGrid id='jq' checkbox='true' init='js:ready' page='true' pagesize='10' shrinktofit='false' pagesizelist='10,20' roweditor='false' headervisible='true' heading='12121212' width='700' height='200'>
+        <jqcol frozen='true' label='Amount' width='300' celleditor='false' name='amount'  index='amount'  ></jqcol>
+        <jqcol frozen='true' label='Tax'    width='300' celleditor='false' name='tax'     index='tax'    ></jqcol>
+        <jqcol label='日期'   width='200' cellEditor='false' name='invdate' index='invdate' id='sheng'  ></jqcol>
+        <jqcol label='Client' width='100' celleditor='false' name='name'    index='name' ></jqcol>
+        <jqcol label='Total'  width='300' celleditor='false' name='total'   index='total'  ></jqcol>
+        <jqcol label='Notes'  width='100' celleditor='false' name='note'    index='note'  ></jqcol>
+    </JQGrid>
+</body>
+</html>
