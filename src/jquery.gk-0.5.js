@@ -41,12 +41,6 @@
                 }
             }
         };
-        proto.className = function () {
-            var funcNameRegex = /function (.{1,})\(/;
-            var results = (funcNameRegex).exec((this)['constructor'].toString());
-            var className = (results && results.length > 1) ? results[1] : "";
-            return className.split('(')[0];
-        };
         proto.gkm = function () {
             return CustomTag.gkm[this.id];
         };
@@ -195,7 +189,7 @@
         var TagLibrary = {};
         TagLibrary.serial = 0;
         TagLibrary.customTags = {};
-        TagLibrary.content = "<content></content>";
+        TagLibrary.content = new RegExp("<content\s*>\S*<\/content>", "ig");
         TagLibrary.DATAKEY = "_gk_";
         TagLibrary.genIdPrefix = "_gk_gen_";
         TagLibrary.eventStore = [];
