@@ -160,6 +160,7 @@
                 $customTagElement = $(customTagElement),
                 clazz = $customTagElement.attr(this.CLASS) || 'WebComponent',
                 newHTML = $customTagElement.html(),
+                rgContent = new RegExp(TagLibrary.content, "i"),
                 script, id, repHTML;
 
             if (typeof processTagElement.id === 'undefined' || processTagElement.id === '') {
@@ -171,7 +172,7 @@
             TagLibrary.eventStore['script'].push(script);
             repHTML = TagUtils.innerHTML(processTagElement);
             CustomTag.gkm[id] = repHTML;
-            newHTML = newHTML.replace(TagLibrary.content, repHTML);
+            newHTML = newHTML.replace(rgContent, repHTML);
             newHTML = $.gk.components[processTagElement.nodeName.toUpperCase()].prototype['beforeParse'](newHTML);
             var onEvent = [];
             $.each(processTagElement.attributes, function (idx, att) {
