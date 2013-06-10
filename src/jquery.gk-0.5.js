@@ -270,7 +270,7 @@
             newGKObj = (TagLibrary.eventStore['script'] || []).join(' ');
             val = newGKObj.length > 0 ? ele.innerHTML + '<script>' + newGKObj + '</script>' : ele.innerHTML;
             TagLibrary.eventStore['script'] = [];
-            return val.replace(/(\S*\w+=['"]\{\{\w+\}\}['"])|(\{\{\w+\}\})/g, "");
+            return val.replace(/(\s(?!(data-gk-))[\w-]+=['"]\{\{[^\{\}]+\}\}['"])|((?!['"])\{\{[^\{\}]+\}\}(?!['"]))/g, "");
         },
         registry: function (classes) {
             $.each(classes, function (idx, clazz) {
