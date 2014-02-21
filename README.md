@@ -11,7 +11,7 @@ node static_server.js
 
 Step2: open Browser
 
-http://localhost:8888/demo/gmap.html
+[<img src="http://i.imgur.com/RRFjEDL.png">](http://localhost:8888/demo/gmap.html)
 
 http://localhost:8888/demo/raty.html
 
