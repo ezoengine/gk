@@ -1,0 +1,1 @@
+https://github.com/jeromeetienne/jquery-qrcode

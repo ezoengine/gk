@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	  <meta charset="utf-8"/>
+	  <script src='../gk/lib/require/require.min.js'></script>
+	  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+	  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+	  <script gk-tags='qrcode' src='../gk/gk-loader.js'></script>
+	</head>
+	<body gk-app>
+		<raty score='3'></raty>
+		<div id='q' is='QRCode' width='120' height='120'>Hi,QRCode</div>
+		<input onkeydown="$('#q').gk('render',this.value)">
+	</body>
+</html>
