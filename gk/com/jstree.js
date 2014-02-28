@@ -68,11 +68,11 @@ define(['jstree', 'css!lib/jstree/themes/default/style.css'], function () {
       };
 
       function _prepareAjaxData(url) {
-        var reg = /\w+\.\w+/,
+        var reg = /\.go$/,
           result = {
             url: function () {
               if (reg.test(url)) {
-                return 'event/put/gk/' + url + '.go?json';
+                return url + '?json';
               } else {
                 return url;
               }
