@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='jqcol,jqcolend,jqgrid' src='../gk/gk-loader.js'></script>
+  <script>
+    $(document).on('gkComponentsReady', function (w) {
+      $('#g1').gk('render', {
+        "url": "http://groupeipt.csc.com.tw/erp/pw/gul/event/put/gk/dezcPageGridCommonBean.execute.go",
+        "data": {
+          "g1": "pw.6K|EMPNO_PW6K,NAME,ORDERDATE,GROUP_PW6K,FUNC_PW6K,HOLIDAY_PW6K,LUNCH_PW6K,DINNER_PW6K,UEMPNO_PW6K,UDATE_PW6K|true|g1",
+          "g1_params.list": [
+            {
+              "text": "empNo_qry",
+              "value": "155614"
+            },
+            {
+              "text": "orderDate_qry",
+              "value": "20140101"
+            },
+            {
+              "text": "showQryMsg_qry",
+              "value": "true"
+            },
+            {
+              "text": "resetToolBar1_qry",
+              "value": "false"
+            }
+          ],
+          "g1.pagebar": {"offset":0, "pageSize":10, "pageSort":false, "sortField":"", "sortDir":"none"}
+        }
+      });
+    });
+  </script>
+</head>
+<body gk-app>
+<JQGrid id='g1' gridview="true" checkbox='true' filtertoolbar="true" init='js:ready' page='true' pagesize='10' shrinktofit='false' pagesizelist='10,20'
+        roweditor='true' headervisible='true' heading='後端分頁' width='1200' height='200'>
+  <jqcol label='職工編號' width='100' celleditor='false' name='EMPNO_PW6K'></jqcol>
+  <jqcol label='姓名' width='100' celleditor='false' name='ORDERDATE'></jqcol>
+  <jqcol label='訂餐日期' width='130' cellEditor='false' name='GROUP_PW6K'></jqcol>
+  <jqcol label='送達地點' width='130' celleditor='false' name='EMPNO_PW6K'></jqcol>
+  <jqcol label='功能' width='100' celleditor='false' name='FUNC_PW6K'></jqcol>
+  <jqcol label='非週六日假日訂餐' width='120' cellEditor='false' name='HOLIDAY_PW6K'></jqcol>
+  <jqcol label='午餐' width='100' celleditor='false' name='LUNCH_PW6K'></jqcol>
+  <jqcol label='晚餐' width='100' celleditor='false' name='DINNER_PW6K'></jqcol>
+  <jqcol label='訂購人' width='100' cellEditor='false' name='UEMPNO_PW6K'></jqcol>
+  <jqcol label='日期' width='130' cellEditor='false' name='UDATE_PW6K'></jqcol>
+</JQGrid>
+</body>
+</html>
