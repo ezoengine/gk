@@ -1,0 +1,54 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+.bx-wrapper html, .bx-wrapper body, .bx-wrapper div, .bx-wrapper span, .bx-wrapper applet, .bx-wrapper object, .bx-wrapper iframe,
+.bx-wrapper h1, .bx-wrapper h2, .bx-wrapper h3, .bx-wrapper h4, .bx-wrapper h5, .bx-wrapper h6, .bx-wrapper p, .bx-wrapper blockquote, .bx-wrapper pre,
+.bx-wrapper a, .bx-wrapper abbr, .bx-wrapper acronym, .bx-wrapper address, .bx-wrapper big, .bx-wrapper cite, .bx-wrapper code,
+.bx-wrapper del, .bx-wrapper dfn, .bx-wrapper em, .bx-wrapper img, .bx-wrapper ins, .bx-wrapper kbd, .bx-wrapper q, .bx-wrapper s, .bx-wrapper samp,
+.bx-wrapper small, .bx-wrapper strike, .bx-wrapper strong, .bx-wrapper sub, .bx-wrapper sup, .bx-wrapper tt, .bx-wrapper var,
+.bx-wrapper b, .bx-wrapper u, .bx-wrapper i, .bx-wrapper center,
+.bx-wrapper dl, .bx-wrapper dt, .bx-wrapper dd, .bx-wrapper ol, .bx-wrapper ul, .bx-wrapper li,
+.bx-wrapper fieldset, .bx-wrapper form, .bx-wrapper label, .bx-wrapper legend,
+.bx-wrapper table, .bx-wrapper caption, .bx-wrapper tbody, .bx-wrapper tfoot, .bx-wrapper thead, .bx-wrapper tr, .bx-wrapper th, .bx-wrapper td,
+.bx-wrapper article, .bx-wrapper aside, .bx-wrapper canvas, .bx-wrapper details, .bx-wrapper embed,
+.bx-wrapper figure, .bx-wrapper figcaption, .bx-wrapper footer, .bx-wrapper header, .bx-wrapper hgroup,
+.bx-wrapper menu, .bx-wrapper nav, .bx-wrapper output, .bx-wrapper ruby, .bx-wrapper section, .bx-wrapper summary,
+.bx-wrapper time, .bx-wrapper mark, .bx-wrapper audio, .bx-wrapper video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+.bx-wrapper article, .bx-wrapper aside, .bx-wrapper details, .bx-wrapper figcaption, .bx-wrapper figure,
+.bx-wrapper footer, .bx-wrapper header, .bx-wrapper hgroup, .bx-wrapper menu, .bx-wrapper nav, .bx-wrapper section {
+    display: block;
+}
+
+.bx-wrapper body {
+    line-height: 1;
+}
+
+.bx-wrapper ol, .bx-wrapper ul {
+    list-style: none;
+}
+
+.bx-wrapper blockquote, .bx-wrapper q {
+    quotes: none;
+}
+
+.bx-wrapper blockquote:before, .bx-wrapper blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+.bx-wrapper table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" type="text/css" href="normalize.css">
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='bxslider' src='../gk/gk-loader.js'></script>
+  <script>
+    $(document).on('gkComponentsReady', function () {
+      $("#bxslider").bxSlider();
+    });
+  </script>
+</head>
+<body gk-app>
+<ul id="bxslider" is="bxslider" style="height:260px;width:100%" captions="true" >
+  <li>
+    <img style="width:100%;height:260px" src="http://i.imgur.com/b9h4ILl.png" title="Funky roots">
+  </li>
+  <li>
+    <img style="width:100%;height:260px" src="http://i.imgur.com/vnxjGeS.jpg">
+  </li>
+  <li>
+    <img style="width:100%;height:260px" src="http://i.imgur.com/9md2qds.jpg">
+  </li>
+</ul>
+</body>
+</html>
