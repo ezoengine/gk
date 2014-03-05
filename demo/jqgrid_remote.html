@@ -30,16 +30,15 @@
               "text": "resetToolBar1_qry",
               "value": "false"
             }
-          ],
-          "g1.pagebar": {"offset":0, "pageSize":10, "pageSort":false, "sortField":"", "sortDir":"none"}
+          ]
         }
       });
     });
   </script>
 </head>
 <body gk-app>
-<JQGrid id='g1' gridview="true" checkbox='true' filtertoolbar="true" init='js:ready' page='true' pagesize='10' shrinktofit='false' pagesizelist='10,20'
-        roweditor='true' headervisible='true' heading='後端分頁' width='1200' height='200'>
+<jqgrid id='g1' gridview="true" checkbox='true' page='true' shrinktofit='false' pagesize="5" pagesizelist='5,10,20'
+        roweditor='true' headervisible='true' heading='後端分頁' width='1000' height='200'>
   <jqcol label='職工編號' width='100' celleditor='false' name='EMPNO_PW6K'></jqcol>
   <jqcol label='姓名' width='100' celleditor='false' name='ORDERDATE'></jqcol>
   <jqcol label='訂餐日期' width='130' cellEditor='false' name='GROUP_PW6K'></jqcol>
@@ -50,6 +49,6 @@
   <jqcol label='晚餐' width='100' celleditor='false' name='DINNER_PW6K'></jqcol>
   <jqcol label='訂購人' width='100' cellEditor='false' name='UEMPNO_PW6K'></jqcol>
   <jqcol label='日期' width='130' cellEditor='false' name='UDATE_PW6K'></jqcol>
-</JQGrid>
+</jqgrid>
 </body>
 </html>

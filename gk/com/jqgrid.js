@@ -22,14 +22,18 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
     template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}'>  <tbody>    <tr>      <td><content></content>        <JQColEnd/>      </td>    </tr>  </tbody></table><div id='{{id}}_pager'></div>",
     script: function () {
       "use strict";
+
       var _id, _record, _$jqGrid,
+          self = this,
+          $ele = self.$ele,
           $ = window.jQuery,
           isgk = !! window.gk,
           _gkPluginKey = "jqGrid";
 
       // remote page grid(rpg) objects
-      var rpgAjax, rpgId, rpgUrl, rpgInfo;
-      var rpg = {
+      var rpgInfo,
+          rpgBarId = ".pagebar";
+      var rpgPage = {
         "offset": 0,
         "pageSize": 10,
         "pageSort": false,
@@ -122,6 +126,10 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
                   val[decKey].push(ary[i]);
                 }
               }
+              // use first value of page size list when no page size setup
+              if (typeof self.$originEle.attr("rowNum") === "undefined") {
+                val["rowNum"] = parseInt(ary[0]);
+              }
               break;
             case "gk-rowEditor":
               if (value === "true") {
@@ -193,11 +201,11 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         }
       };
 
-      var _clearAttr = function ($el) {
-        $el instanceof jQuery ? '' : ($el = $($el));
+      var _clearAttr = function () {
+        $ele instanceof jQuery ? '' : ($ele = $($ele));
         var all = _attrs.concat(_attrsGK);
         $.each(all, function () {
-          $el.removeAttr(this);
+          $ele.removeAttr(this);
         });
       };
 
@@ -223,9 +231,8 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         return val;
       };
 
-      var _getAttr = function (self, keys) {
-        var $ele = self.$ele,
-            obj = {},
+      var _getAttr = function (keys) {
+        var obj = {},
             value, defaultVal;
 
         for (var i = 0, len = keys.length; i < len; i++) {
@@ -239,6 +246,9 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       var _orgRemotePageGridConfig = function (rpgData) {
+        var currentPage = $ele.jqGrid("getGridParam", "page"),
+            pageSize = _getRowNum();
+
         rpgInfo = $.extend(true, {}, {
           "i": {
             "src": _id,
@@ -246,6 +256,10 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
           },
           "t": "map"
         });
+        rpgInfo["i"][_id + rpgBarId] = {};
+        rpgPage.pageSize = parseInt(pageSize);
+        rpgPage.offset = (currentPage - 1) * pageSize;
+        $.extend(true, rpgInfo["i"][_id + rpgBarId], rpgPage);
         $.extend(true, rpgInfo["i"], rpgData.data);
       };
 
@@ -277,15 +291,14 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         }
       };
 
-      var jqgrid_override = function (thisObj) {
-        var $ele = thisObj.$ele;
+      var jqgrid_override = function () {
         // resolve the problem of getting data after filtering
         if (!$.jgrid.gkoldfrom) {
           $.jgrid.gkoldfrom = $.jgrid.from;
           $.jgrid.gkData = {};
           $.jgrid.from = function () {
             var result = $.jgrid.gkoldfrom.apply(this, arguments),
-                old_select = result.select;
+              old_select = result.select;
             result.select = function () {
               var val = old_select.apply(this, arguments);
               $ele.triggerHandler("gk.jqGridLastSelected", [val.slice(0)]);
@@ -296,12 +309,10 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         }
       };
 
-      var jqgrid_updateRowNum = function (thisObj, data) {
+      var jqgrid_updateRowNum = function (data) {
         // disable rowNum limit
-        var $ele = thisObj.$ele,
-            size;
-
-        if ($.type(data) !== "array" || !thisObj) {
+        var size;
+        if ($.type(data) !== "array" || !self) {
           return false;
         }
         size = data.length;
@@ -312,9 +323,109 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         }
       };
 
+      var _getRowNum = function () {
+        return parseInt($ele.getGridParam("rowNum"));
+      };
+
+      var _getRealRowNum = function () {
+        return parseInt($('#' + _id + '_pager .ui-pg-selbox').val());
+      };
+
+      var _getUserPage = function () {
+        return parseInt($('#' + _id + '_pager .ui-pg-input').val());
+      };
+
+      var _setUserPage = function (page) {
+        return parseInt($('#' + _id + '_pager .ui-pg-input').val(page));
+      };
+
+      var _setGridParam = function (isRpg, args) {
+        jqgrid_updateRowNum(args);
+        if (isRpg) {
+          $ele.jqGrid("setGridParam", {
+            url: args.url + "?data",
+            editurl: args.url + "?data",
+            postData: "&j=" + encodeURIComponent(JSON.stringify(rpgInfo)),
+            mtype: "POST",
+            datatype: "json",
+            gridview: true,
+            jsonReader: {
+              repeatitems: false,
+              records: function (rpgData) {
+                return rpgData[_id]["totalSize"];
+              },
+              total: function (rpgData) {
+                return Math.ceil(rpgData[_id]["totalSize"] / _getRealRowNum());
+              },
+              root: function (rpgData) {
+                if (rpgData[_id]) {
+                  return rpgData[_id]["data"];
+                }
+              }
+            },
+            onPaging: function (operation) {
+              var currentPage = parseInt($ele.getGridParam("page"));
+              if (operation === "next_g1_pager") {
+                rpgInfo["i"][_id + rpgBarId]["offset"] += _getRowNum();
+              } else if (operation === "prev_g1_pager") {
+                rpgInfo["i"][_id + rpgBarId]["offset"] -= _getRowNum();
+              } else if (operation === "last_g1_pager") {
+                var lastPage = $ele.getGridParam("lastpage");
+                rpgInfo["i"][_id + rpgBarId]["offset"] = (lastPage - 1) * _getRowNum();
+              } else if (operation === "first_g1_pager") {
+                rpgInfo["i"][_id + rpgBarId]["offset"] = 0;
+              } else if (operation === "records") {
+                var newPageSize = _getRealRowNum();
+                debugger;
+                // 判斷舊的停留頁數是否大於修改過後的總頁數，若大於，則停留在最後一頁
+                rpgInfo["i"][_id + rpgBarId]["offset"] = (currentPage - 1) * newPageSize;
+                rpgInfo["i"][_id + rpgBarId]["pageSize"] = newPageSize;
+              } else if (operation === "user") {
+                var userPage = _getUserPage();
+                if (userPage <= $ele.getGridParam("lastpage")) {
+                  rpgInfo["i"][_id + rpgBarId]["offset"] = (_getUserPage() - 1) * _getRowNum();
+                } else {
+                  _setUserPage(currentPage);
+                }
+              } else {
+                return;
+              }
+
+              $ele.jqGrid("setGridParam", {
+                postData: "&j=" + encodeURIComponent(JSON.stringify(rpgInfo))
+              });
+            },
+            loadComplete: function (rpgData) {
+              // callback process
+            }
+          });
+        } else {
+          $ele.jqGrid("setGridParam", {
+            data: args,
+            gridview: true
+          });
+        }
+      };
+
+      var _doRender = function (isRpg, args) {
+        $ele.jqGrid("destroyFrozenColumns");
+        $ele.jqGrid("clearGridData");
+        _setGridParam(isRpg, args);
+        $ele.trigger("reloadGrid", [
+          {
+            current: true
+          }
+        ]);
+        $ele.jqGrid("setFrozenColumns").trigger("jqGridAfterGridComplete");
+        jqgrid_adjustSize(self);
+        // offset frozen-div when header non-visible
+        if (_record["gk-headervisible"] === "false") {
+          _offsetFrozenRoof();
+        }
+      };
+
       this.init = function () {
-        var self = this,
-            settings, settingsGK;
+        var settings, settingsGK;
 
         // support jqgrid of gul
         _id = self.id;
@@ -322,18 +433,16 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
           gk._addIdMap(_gkPluginKey, _id);
         }
 
-        settings = _getAttr(self, _attrs);
+        settings = _getAttr(_attrs);
         settings.colModel = [];
-        settingsGK = _getAttr(self, _attrsGK);
+        settingsGK = _getAttr(_attrsGK);
         settings = _extendAttrs(settings, settingsGK);
-        _clearAttr(self.$ele);
+        _clearAttr();
         self.options = $.extend(true, {}, settings);
       };
 
       this.jqGrid = function () {
-        var self = this,
-            $ele = self.$ele,
-            settings = self.options,
+        var settings = self.options,
             colMod = settings['colModel'],
             width = settings.width + "",
             height = settings.height + "";
@@ -347,7 +456,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
             // reset width and height. The original data aren't what we mean.
             self.width(width);
             self.height(height);
-            jqgrid_override(self);
+            jqgrid_override();
           });
           _onEvent($ele);
           $ele.jqGrid(settings);
@@ -358,9 +467,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.width = function (width) {
-        var self = this,
-            $ele = self.$ele,
-            newWidth = width,
+        var newWidth = width,
             $jqGrid = _$jqGrid ? _$jqGrid : $ele.closest(".ui-jqgrid"),
             otherWidth = $jqGrid.length > 0 ? $jqGrid.outerWidth(true) - $jqGrid.width() : 0,
             $parent;
@@ -384,9 +491,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.height = function (height) {
-        var self = this,
-            $ele = self.$ele,
-            newHeight = height,
+        var newHeight = height,
             $jqGrid = _$jqGrid ? _$jqGrid : $ele.closest(".ui-jqgrid"),
             $titlebar = $jqGrid[0] ? $jqGrid.find('.ui-jqgrid-titlebar') : [],
             $pager = $jqGrid[0] ? $jqGrid.find('.ui-jqgrid-pager') : [],
@@ -422,8 +527,6 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.heading = function (heading) {
-        var self = this,
-            $ele = self.$ele;
         if (_record['gk-headervisible'] === "true") {
           $ele.jqGrid("setCaption", heading);
         }
@@ -452,51 +555,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         return rowdata;
       };
 
-      var _setGridParam = function (isRpg, $ele, self, args) {
-        jqgrid_updateRowNum(self, args);
-        if (isRpg) {
-          $ele.jqGrid("setGridParam", {
-            url: args.url + "?data",
-            postData: "&j=" + encodeURIComponent(JSON.stringify(rpgInfo)),
-            datatype: "json",
-            mtype: "POST",
-            jsonReader: {
-              root: function(rpgData) {
-                return rpgData[_id]["data"];
-              }
-            },
-            loadComplete: function (rpgData) {
-              //
-            }
-          });
-        } else {
-          $ele.jqGrid("setGridParam", {
-            data: args
-          });
-        }
-      };
-
-      var _doRender = function (isRpg, $ele, self, args) {
-        $ele.jqGrid("destroyFrozenColumns");
-        $ele.jqGrid("clearGridData");
-        _setGridParam(isRpg, $ele, self, args);
-        $ele.trigger("reloadGrid", [
-          {
-            current: true
-          }
-        ]);
-        $ele.jqGrid("setFrozenColumns").trigger("jqGridAfterGridComplete");
-        jqgrid_adjustSize(self);
-        // offset frozen-div when header non-visible
-        if (_record["gk-headervisible"] === "false") {
-          _offsetFrozenRoof();
-        }
-      };
-
       this.render = function (args) {
-        var self = this,
-            $ele = self.$ele;
-
         if (!$ele.jqGrid("getGridParam")) {
           // support jqgrid of html
           $ele.one("gk.jqGridInit", args, function (evt) {
@@ -516,24 +575,20 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
                 // remote page grid injection
                 if (args.url && args.data) {
                   _orgRemotePageGridConfig(args);
-                  _doRender(true, $ele, self, args);
+                  _doRender(true, args);
                 } else {
                   return false;
                 }
               }
             } else {
-              _doRender(false, $ele, self, args);
+              _doRender(false, args);
             }
           }
         }
       };
 
       this.frozen = function () {
-        var self = this,
-          $ele = self.$ele,
-          settings = self.options,
-          length = arguments.length;
-
+        var settings = self.options;
         var val = _parseBoolean(arguments[0]);
         if (val === true) {
           var args = arguments[1] && arguments[1].constructor === Array ? arguments[1] : [];
@@ -566,11 +621,11 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.filterToolbar = function (args) {
-        var $ele = this.$ele;
         if (args === true) {
           $ele.jqGrid('filterToolbar', {
             searchOnEnter: false,
-            enableClear: false
+            enableClear: false,
+            defaultSearch: 'cn'
           });
         } else {
           $ele.jqGrid('destroyFilterToolbar');
@@ -578,14 +633,13 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.filter = function (value) {
-        var $ele = this.$ele,
-          p = $ele.jqGrid('getGridParam'),
-          colModel = p.colModel,
-          sdata = {},
-          sopt = {},
-          sd = false,
-          val = "",
-          nm, so;
+        var p = $ele.jqGrid('getGridParam'),
+            colModel = p.colModel,
+            sdata = {},
+            sopt = {},
+            sd = false,
+            val = "",
+            nm, so;
 
         if (value && typeof value === "string") {
           val = value;
@@ -630,14 +684,13 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
           }).trigger("reloadGrid", [{
               page: 1
             }
-            ]);
+          ]);
           jqgrid_adjustSize(this);
         }
       };
 
       this.addRowData = function (rdata) {
         if (rdata) {
-          var $ele = this.$ele;
           if ($.isArray(rdata)) {
             $ele.jqGrid("addRowData", "id", rdata);
           } else {
@@ -657,8 +710,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.delRowData = function () {
-        var $ele = this.$ele,
-          rowids, rowSize;
+        var rowids, rowSize;
         if (arguments.length === 0 || arguments[0] === "") {
           rowids = $ele.jqGrid("getGridParam", "selarrrow");
           rowSize = rowids.length;
@@ -679,8 +731,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.hidden = function (colName, isHidden) {
-        var $ele = this.$ele,
-          gridWidth = $ele.getGridParam("width");
+        var gridWidth = $ele.getGridParam("width");
         if (_parseBoolean(isHidden) === true) {
           $ele.jqGrid("hideCol", colName);
         } else {
@@ -691,18 +742,18 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
 
       this.mask = function (param) {
         var val = param + "",
-          $grid = _$jqGrid,
-          obj = {
-            css: {
-              border: 'none',
-              padding: '5px',
-              backgroundColor: '#000',
-              '-webkit-border-radius': '10px',
-              '-moz-border-radius': '10px',
-              opacity: .6,
-              color: '#fff'
-            }
-          };
+            $grid = _$jqGrid,
+            obj = {
+              css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .6,
+                color: '#fff'
+              }
+            };
 
         if (!$.blockUI) {
           return;
