@@ -3,8 +3,8 @@ define(function () {
     template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}'><content></content></div>",
     script: function () {
       var _record,
-        _gkPluginKey = "jqGrid",
-        $ = window.jQuery;
+          _gkPluginKey = "jqGrid",
+          $ = window.jQuery;
 
       var _default = {
         'align': 'center',
@@ -177,15 +177,15 @@ define(function () {
 
       var _formatter = function (fmtTypeValue) {
         var fmatter = $.fn.fmatter,
-          fmtobj = {},
-          unfmtobj = {};
+            fmtobj = {},
+            unfmtobj = {};
         if (typeof fmatter[fmtTypeValue] === "undefined") {
           switch (_getFmtType(fmtTypeValue)) {
           case "label":
             var doAction = function (cellvalue, options, dataOrCell, funcStr) {
               var val = cellvalue,
-                methodFunc = window,
-                methodStr;
+                  methodFunc = window,
+                  methodStr;
               if (funcStr) {
                 methodStr = funcStr.split(".");
                 for (var i = 0, len = methodStr.length; i < len; i++) {
@@ -252,8 +252,8 @@ define(function () {
           });
           gk._addIdEnhance(function (id) {
             var ary = null,
-              rg = new RegExp("^" + columnId + "(?:_([0-9]+))?$"),
-              matchAry;
+                rg = new RegExp("^" + columnId + "(?:_([0-9]+))?$"),
+                matchAry;
             if (rg.test(id) === true) {
               matchAry = id.match(rg);
               ary = {
@@ -269,8 +269,8 @@ define(function () {
 
       var _getAttr = function (self, keys) {
         var $ele = self.$ele,
-          obj = {},
-          value, defaultVal;
+            obj = {},
+            value, defaultVal;
         for (var i = 0, len = keys.length; i < len; i++) {
           value = $ele.attr(keys[i]);
           defaultVal = '{{' + keys[i] + '}}';
@@ -283,10 +283,10 @@ define(function () {
 
       this.init = function () {
         var self = this,
-          $ele = self.$ele,
-          gridId = $ele.closest('table').attr('id'),
-          gridSettings = $('#' + gridId).gk().options,
-          settings, settingsGK;
+            $ele = self.$ele,
+            gridId = $ele.closest('table').attr('id'),
+            gridSettings = $('#' + gridId).gk().options,
+            settings, settingsGK;
 
         settings = _getAttr(self, _attrs);
         settingsGK = _getAttr(self, _attrsGK);

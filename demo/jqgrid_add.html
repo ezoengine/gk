@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='jqcol,jqcolend,jqgrid' src='../gk/gk-loader.js'></script>
+  <script>
+    $(document).on('gkComponentsReady', function (w) {
+      var mydata = [];
+      for (var i = 0; i < 20; i++) {
+        mydata.push({
+          'invdate': '20140226',
+          'name': 'test' + i,
+          'note': 'note' + i,
+          'amount': '200.00',
+          'tax': '20.00',
+          'total': '430.00'
+        });
+      }
+      $('#jq').gk('render', mydata);
+
+      $('#addone').on('click', function () {
+        mydata[5].name = 'newone_' + Math.ceil(Math.random() * 100);
+        $('#jq').gk('add', mydata[5]);
+      });
+
+      $('#addtwo').on('click', function () {
+        var mydata2 = [];
+        mydata[0].name = 'newtwo_' + Math.ceil(Math.random() * 1000);
+        mydata[1].name = 'newtwo_' + Math.ceil(Math.random() * 1000);
+        mydata2.push(mydata[0], mydata[1]);
+        $('#jq').gk('add', mydata2);
+      });
+    });
+  </script>
+</head>
+<body gk-app>
+<button id="addone">新增一筆</button>
+<button id="addtwo">新增二筆</button>
+<jqgrid id='jq' gridview="true" checkbox='true' filtertoolbar="true" page='true' pagesize='10' pagesizelist='10,20'
+        roweditor='true' headervisible='true' heading='title' width='700' height='400'>
+  <jqcol label='Amount' frozen="true" width='100' celleditor='false' name='amount'></jqcol>
+  <jqcol label='Tax' frozen="true" width='100' celleditor='false' name='tax'></jqcol>
+  <jqcol label='日期' type="date" format="mm-dd-YYYY" width='200' cellEditor='false' name='invdate'></jqcol>
+  <jqcol label='Client' width='300' celleditor='true' name='name'></jqcol>
+  <jqcol label='Total' width='100' celleditor='false' name='total'></jqcol>
+  <jqcol label='Notes' width='100' celleditor='false' name='note'></jqcol>
+</jqgrid>
+</body>
+</html>
