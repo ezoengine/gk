@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='initial-scale=1.0, user-scalable=no' />
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='uidialog' src='../gk/gk-loader.js'></script>
+</head>
+
+<body>
+  <h3 id='n1'>Dialog1</h3>
+  <input id='open' type='button' value='開啟'>
+  <input id='close' type='button' value='關閉'>
+  <input id='change' type='button' value='更改標題'>
+  <input id='add' type='button' value='增加按鈕'>
+  <div id='dialog1' is='uidialog' title='標題' closable='false'>
+    <p>這是內容</p>
+  </div>
+  <h3 id='n2'>Dialog2</h3>
+  <input id='open2' type='button' value='開啟'>
+  <div id='dialog2' is='uidialog' title='遮罩，不可拖動與改變大小' modal='true' draggable='false' resizable='false'>
+    <p>這是內容</p>
+  </div>
+  <h3 id='n3'>Dialog3</h3>
+  <input id='open3' type='button' value='開啟'>
+  <div id='dialog3' is='uidialog' title='寬高最大400，最小100' width='300' maxWidth='400' minWidth='100' height='300' maxHeight='400' minHeight='100'>
+    <p>這是內容</p>
+  </div>
+  <script>
+  $(document).on('gkComponentsReady', function() {
+    var $dialog1 = $('#dialog1');
+    $dialog1.dialog('option', 'position', {
+      my: 'left top+50',
+      at: 'left bottom',
+      of: n1
+    });
+
+    var $dialog2 = $('#dialog2');
+    $dialog2.dialog('option', 'position', {
+      my: 'left top+50',
+      at: 'left bottom',
+      of: n2
+    });
+
+    var $dialog3 = $('#dialog3');
+    $dialog3.dialog('option', 'position', {
+      my: 'left top+50',
+      at: 'left bottom',
+      of: n3
+    });
+
+    $('#open').on('click', function() {
+      $dialog1.gk('open');
+    });
+
+    $('#close').on('click', function() {
+      $dialog1.gk('close');
+    });
+
+    $('#change').on('click', function() {
+      $dialog1.gk('title', '新標題');
+    });
+
+    $('#add').on('click', function() {
+      $dialog1.gk('buttons', {
+        OK: function() {
+          $dialog1.gk('close');
+        }
+      });
+    });
+
+    $dialog1.on('dialogopen', function() {
+      console.log('觸發開啟事件');
+    });
+
+    $dialog1.on('dialogclose', function() {
+      console.log('觸發關閉事件');
+    });
+
+    $('#open2').on('click', function() {
+      $dialog2.gk('open');
+    });
+
+    $('#open3').on('click', function() {
+      $dialog3.gk('open');
+    });
+  });
+  </script>
+</body>
+
+</html>
