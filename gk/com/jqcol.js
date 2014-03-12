@@ -1,10 +1,14 @@
 define(function () {
   return {
-    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}'><content></content></div>",
+    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}'><content></content></div>",
     script: function () {
+      "use strict";
+
       var _record,
           _gkPluginKey = "jqGrid",
-          $ = window.jQuery;
+          $ = window.jQuery,
+          self = this,
+          $ele = self.$ele;
 
       var _default = {
         'align': 'center',
@@ -17,6 +21,8 @@ define(function () {
         'editable': false,
         'edittype': 'text',
         'label': ' ',
+        'url': '',
+        'value': '',
         'gk-id': '',
         'gk-format': '',
         'gk-decorator': '',
@@ -82,51 +88,104 @@ define(function () {
         return val;
       };
 
+      var radioelem = function (cellData, options) {
+        var htmlStr = '',
+            radios = _record.value.split(":");
+        $.each(radios, function (idx, val) {
+          htmlStr += "<input type='radio' name='" + options.id + "'>" + val + "</input>";
+        });
+        return htmlStr;
+      };
+
+      var radiovalue = function (elem, operation, value) {
+        if (operation === 'get') {
+          return $(elem).val();
+        } else if (operation === 'set') {
+          if ($(elem).is(':checked') === false) {
+            $(elem).filter('[value=' + value + ']').attr('checked', true);
+          }
+        }
+      };
+
       var _doEdittype = function (settings, gridId, decKey, value) {
         switch (value) {
-        case "textarea":
-          settings[decKey] = value;
-          break;
-        case "date":
-          var fmt = 'Y/m/d',
-            format = settings["gk-format"].toLowerCase(),
-            newFormatParseRe;
-          if (format.length > 0) {
-            fmt = format.replace("yyyy", "Y");
-            fmt = fmt.replace("mm", "m");
-            fmt = fmt.replace("dd", "d");
-          }
-          newFormatParseRe = _getDateParseRe(format);
-          settings["sorttype"] = function (cell) {
-            if (cell.length === 0) {
-              return -1;
+          case "textarea":
+            settings[decKey] = value;
+            break;
+          case "date":
+            var fmt = 'Y/m/d',
+                format = settings["gk-format"].toLowerCase(),
+                newFormatParseRe;
+            if (format.length > 0) {
+              fmt = format.replace(/yyyy|yyy/g, "Y");
+              fmt = fmt.replace("mm", "m");
+              fmt = fmt.replace("dd", "d");
             }
-            return parseInt(cell, 10);
-          };
-          settings["formatter"] = "date";
-          settings["unformat"] = function (cellvalue, options) {
-            var op = $.extend(true, {}, options.colModel);
-            op.formatoptions.parseRe = newFormatParseRe;
-            return $.unformat.date.call(this, cellvalue, op);
-          };
-          settings["formatoptions"] = {
-            srcformat: 'Ymd',
-            newformat: fmt,
-            parseRe: /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/
-          };
-          break;
-        case "label":
-          settings[decKey] = "text";
-          settings["editable"] = false;
-          if (settings["gk-decorator"].length > 0) {
-            settings["formatter"] = _getFmtTypeValue(value);
-            _setFormatter(_getFmtTypeValue(value), gridId);
-          }
-          break;
+            newFormatParseRe = _getDateParseRe(format);
+            settings["sorttype"] = function (cell) {
+              if (cell.length === 0) {
+                return -1;
+              }
+              return parseInt(cell, 10);
+            };
+            settings["formatter"] = "date";
+            settings["unformat"] = function (cellvalue, options) {
+              var op = $.extend(true, {}, options.colModel);
+              op.formatoptions.parseRe = newFormatParseRe;
+              return $.unformat.date.call(this, cellvalue, op);
+            };
+            settings["formatoptions"] = {
+              srcformat: 'Ymd',
+              newformat: fmt,
+              parseRe: /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/
+            };
+            break;
+          case "label":
+            settings[decKey] = "text";
+            settings["editable"] = false;
+            if (settings["gk-decorator"].length > 0) {
+              settings["formatter"] = _getFmtTypeValue(value);
+              _setFormatter(_getFmtTypeValue(value), gridId);
+            }
+            break;
+          case "select":
+            settings[decKey] = "select";
+            settings["edittype"] = "select";
+            if (settings["url"]) {
+              settings["editoptions"] = {dataUrl: settings["url"]};
+            } else {
+              settings["editoptions"] = {value: settings["value"]};
+            }
+            break;
+          case "checkbox":
+            settings[decKey] = "checkbox";
+            settings["edittype"] = "checkbox";
+            settings["editoptions"] = {value: settings["value"]};
+            settings["formatter"] = "checkbox";
+            settings["formatoptions"] = {
+              disabled: false
+            };
+            break;
+          case "radio":
+            settings[decKey] = "radio";
+            settings["edittype"] = "custom";
+            settings["editoptions"] = {custom_element: radioelem, custom_value: radiovalue};
+            //settings["formatter"] = "radio";
+
+            settings["formatter"] = function (cellData, options) {
+              var htmlStr = '',
+                  radios = options.colModel.value.split(":");
+              $.each(radios, function (idx, val) {
+                htmlStr += "<input type='radio' name='" + options.rowId + "'>" + val + "</input>";
+              });
+              return htmlStr;
+            };
+            break;
+          default:
+            break;
         }
         return settings;
       };
-
 
       var _getDateParseRe = function (format) {
         var ft = String(format).toLowerCase(),
@@ -179,38 +238,39 @@ define(function () {
         var fmatter = $.fn.fmatter,
             fmtobj = {},
             unfmtobj = {};
+
         if (typeof fmatter[fmtTypeValue] === "undefined") {
           switch (_getFmtType(fmtTypeValue)) {
-          case "label":
-            var doAction = function (cellvalue, options, dataOrCell, funcStr) {
-              var val = cellvalue,
-                  methodFunc = window,
-                  methodStr;
-              if (funcStr) {
-                methodStr = funcStr.split(".");
-                for (var i = 0, len = methodStr.length; i < len; i++) {
-                  methodFunc = methodFunc[methodStr[i]] ? methodFunc[methodStr[i]] : null;
-                  if (!methodFunc) {
-                    break;
+            case "label":
+              var doAction = function (cellvalue, options, dataOrCell, funcStr) {
+                var val = cellvalue,
+                    methodFunc = window,
+                    methodStr;
+                if (funcStr) {
+                  methodStr = funcStr.split(".");
+                  for (var i = 0, len = methodStr.length; i < len; i++) {
+                    methodFunc = methodFunc[methodStr[i]] ? methodFunc[methodStr[i]] : null;
+                    if (!methodFunc) {
+                      break;
+                    }
+                  }
+                  if (typeof methodFunc === "function") {
+                    val = methodFunc(cellvalue, options, dataOrCell);
                   }
                 }
-                if (typeof methodFunc === "function") {
-                  val = methodFunc(cellvalue, options, dataOrCell);
-                }
-              }
-              return val;
-            };
-            fmtobj[fmtTypeValue] = function (cellvalue, options, rowdata) {
-              var decorator = options.colModel['gk-decorator'];
-              return doAction(cellvalue, options, rowdata, decorator);
-            };
-            unfmtobj['unformat'] = function (cellvalue, options, cellElement) {
-              var undecorator = options.colModel['gk-undecorator'];
-              return doAction(cellvalue, options, cellElement, undecorator);
-            };
-            $.extend(fmatter, fmtobj);
-            $.extend(fmatter[fmtTypeValue], unfmtobj);
-            break;
+                return val;
+              };
+              fmtobj[fmtTypeValue] = function (cellvalue, options, rowdata) {
+                var decorator = options.colModel['gk-decorator'];
+                return doAction(cellvalue, options, rowdata, decorator);
+              };
+              unfmtobj['unformat'] = function (cellvalue, options, cellElement) {
+                var undecorator = options.colModel['gk-undecorator'];
+                return doAction(cellvalue, options, cellElement, undecorator);
+              };
+              $.extend(fmatter, fmtobj);
+              $.extend(fmatter[fmtTypeValue], unfmtobj);
+              break;
           }
         }
       };
@@ -237,10 +297,10 @@ define(function () {
         return val;
       };
 
-      var _destroy = function (self) {
-        self.$ele.off();
-        self.$ele.removeData();
-        self.$ele = null;
+      var _destroy = function () {
+        $ele.off();
+        $ele.removeData();
+        $ele = null;
       };
 
       // support gul gk engine
@@ -267,10 +327,10 @@ define(function () {
         }
       };
 
-      var _getAttr = function (self, keys) {
-        var $ele = self.$ele,
-            obj = {},
+      var _getAttr = function (keys) {
+        var obj = {},
             value, defaultVal;
+
         for (var i = 0, len = keys.length; i < len; i++) {
           value = $ele.attr(keys[i]);
           defaultVal = '{{' + keys[i] + '}}';
@@ -282,18 +342,16 @@ define(function () {
       };
 
       this.init = function () {
-        var self = this,
-            $ele = self.$ele,
-            gridId = $ele.closest('table').attr('id'),
+        var gridId = $ele.closest('table').attr('id'),
             gridSettings = $('#' + gridId).gk().options,
             settings, settingsGK;
 
-        settings = _getAttr(self, _attrs);
-        settingsGK = _getAttr(self, _attrsGK);
+        settings = _getAttr(_attrs);
+        settingsGK = _getAttr(_attrsGK);
         settings = _extendAttrs(settings, settingsGK, gridId);
         gridSettings.colModel.push(settings);
         _gkApi(gridId, self.id, settings['name']);
-        _destroy(self);
+        _destroy();
       };
     }
   };

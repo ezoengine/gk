@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='jqcol,jqcolend,jqgrid' src='../gk/gk-loader.js'></script>
+  <script>
+    $(document).on('gkComponentsReady', function (w) {
+      var mydata = [];
+      for (var i = 0; i < 20; i++) {
+        mydata.push({
+          'invdate': '20140226',
+          'name': 'test' + i,
+          'note': 'note' + i,
+          'amount': "200.00",
+          'tax': '20.00',
+          'total': '430.00'
+        });
+      }
+      $('#jq').gk('render', mydata);
+
+      $('#row').on('click', function () {
+        alert(JSON.stringify($('#jq').gk('getCell', 'name')));
+      });
+
+      $('#row5').on('click', function () {
+        alert(JSON.stringify($('#jq').gk('getCell', 'name', 5)));
+      });
+    });
+  </script>
+</head>
+<body gk-app>
+<span>語法：$('#jq').gk('getCell', colName); ==> 只傳入一個參數，視為欄位名稱，rowId則取自點選row，若未選擇任何資料，則回傳false</span><br>
+<span>語法：$('#jq').gk('getCell', colName, rowId); ==> 傳入兩個參數，第一個參數為欄位名稱，第二個參數為rowId，找不到資料則回傳false</span><br>
+<button id="row">取得Client欄位的Cell資料(請先點選某一比資料)</button>
+<button id="row5">取得Client欄位的第五比Cell資料</button>
+<jqgrid id='jq' checkbox='false' page='true' pagesize='10' pagesizelist='10,20' headervisible='true' heading='title' width='700' height='200'>
+  <jqcol label='Amount' frozen='true' width='100' name='amount'></jqcol>
+  <jqcol label='Tax' frozen='true' width='100' name='tax'></jqcol>
+  <jqcol label='日期' type="date" format="mm-dd-YYYY" width='200' name='invdate'></jqcol>
+  <jqcol label='Client' width='100' name='name'></jqcol>
+  <jqcol label='Total' width='300' name='total'></jqcol>
+  <jqcol label='Notes' width='100' name='note'></jqcol>
+</jqgrid>
+</body>
+</html>
