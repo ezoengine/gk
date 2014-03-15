@@ -1,12 +1,18 @@
 requirejs.config({
   context: 'gk',
   paths: {
-    'jquery-ui': 'lib/jquery-ui/jquery-ui-1.10.4.custom'
+    'jquery-ui': 'lib/jquery-ui/jquery-ui-1.10.4.custom',
+    'jquery.ui.dialogextend': 'lib/jquery.ui.dialogextend/jquery.dialogextend'
+  },
+  shim: {
+    'jquery.ui.dialogextend': {
+      deps: ['jquery-ui']
+    }
   }
 });
 
 // define module (component)
-define(['jquery-ui', 'css!lib/jquery-ui/css/start/jquery-ui-1.10.4.custom.css'], function () {
+define(['jquery.ui.dialogextend', 'css!lib/jquery-ui/css/start/jquery-ui-1.10.4.custom.css'], function () {
   return {
     template: '<div id="{{id}}"><content></content></div>',
     script: function () {
@@ -20,6 +26,11 @@ define(['jquery-ui', 'css!lib/jquery-ui/css/start/jquery-ui-1.10.4.custom.css'],
           draggable: $oriEle.attr('draggable') === 'false' ? false : true,
           modal: $oriEle.attr('modal') === 'true',
           resizable: $oriEle.attr('resizable') === 'false' ? false : true
+        },
+        defaults_extend = {
+          maximizable: $oriEle.attr('maximizable') === 'true',
+          minimizable: $oriEle.attr('minimizable') === 'true',
+          dblclick: 'maximize'
         };
 
       $.extend(true, defaults, {
@@ -41,7 +52,7 @@ define(['jquery-ui', 'css!lib/jquery-ui/css/start/jquery-ui-1.10.4.custom.css'],
           };
         }
 
-        $ele.dialog(defaults);
+        $ele.dialog(defaults).dialogExtend(defaults_extend);
       };
 
       this.buttons = function (obj) {
