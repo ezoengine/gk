@@ -127,7 +127,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
                 }
               }
               // use first value of page size list when no page size setup
-              if (typeof self.$originEle.attr("rowNum") === "undefined") {
+              if (typeof self.$originEle.attr("pagesize") === "undefined") {
                 val["rowNum"] = parseInt(ary[0]);
               }
               break;
@@ -269,8 +269,8 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         return $('#' + self.id + '_frozen').length === 1;
       };
 
-      var _setupFrozenRoof = function () {
-        if (_isFrozen) {
+      var _setupFrozenRoof = function (force) {
+        if (force || _isFrozen()) {
           $ele.jqGrid("destroyFrozenColumns");
           $ele.jqGrid("setFrozenColumns").trigger("jqGridAfterGridComplete");
           // Offset frozen-div when header non-visible
@@ -289,7 +289,8 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
             $(val).offset({'top': $(val).offset().top - 21});
           }
         });
-        $frozenBdiv.offset({'top': $frozenBdiv.offset().top - 21});
+        if ($frozenBdiv.length > 0)
+          $frozenBdiv.offset({'top': $frozenBdiv.offset().top - 21});
       };
 
       var jqgrid_caption = function () {
@@ -460,7 +461,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         ]);
         jqgrid_adjustSize(self);
         // Frozen roof
-        _setupFrozenRoof();
+        _setupFrozenRoof(true);
       };
 
       this.init = function () {
@@ -571,7 +572,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
       };
 
       this.heading = function (heading) {
-        if (_record['gk-headervisible'] === "true") {
+        if (heading && _record['gk-headervisible'] === "true") {
           $ele.jqGrid("setCaption", heading);
         }
       };
@@ -603,7 +604,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         if (!$ele.jqGrid("getGridParam")) {
           // support jqgrid of html
           $ele.one("gk.jqGridInit", args, function (evt) {
-            $(this).gk("info", evt.data);
+            $(this).gk("render", evt.data);
           });
           return false;
         } else {

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='jqcol,jqcolend,jqgrid' src='../gk/gk-loader.js'></script>
+  <script>
+    $(document).on('gkComponentsReady', function (w) {
+      var mydata = [];
+      for (var i = 0; i < 20; i++) {
+        mydata.push({
+          'invdate': '20140226',
+          'name': 'test' + i,
+          'note': 'note' + i,
+          'amount': "200.00",
+          'tax': '20.00',
+          'total': '430.00'
+        });
+      }
+      $('#jq').gk('render', mydata);
+
+      $('#heading').on('click', function () {
+        $('#jq').gk('heading', '標頭被修改了');
+      });
+    });
+  </script>
+</head>
+<body gk-app>
+<span>語法：$('#jq').gk('heading', '標頭被修改了');</span><br>
+<button id="heading">修改標頭</button>
+<jqgrid id='jq' checkbox='false' page='true' pagesize='10' pagesizelist='10,20' seqposition="true"
+        headervisible='true' heading='title' width='700' height='200'>
+  <jqcol label='Amount' frozen='true' width='100' name='amount'></jqcol>
+  <jqcol label='Tax' frozen='true' width='100' name='tax'></jqcol>
+  <jqcol label='日期' type="date" format="mm-dd-YYYY" width='200' name='invdate'></jqcol>
+  <jqcol label='Client' width='200' name='name'></jqcol>
+  <jqcol label='Total' width='100' name='total'></jqcol>
+  <jqcol label='Notes' width='100' name='note'></jqcol>
+</jqgrid>
+</body>
+</html>
