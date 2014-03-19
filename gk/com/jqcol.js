@@ -1,6 +1,6 @@
 define(function () {
   return {
-    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}'><content></content></div>",
+    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' onclick='{{onclick}}'><content></content></div>",
     script: function () {
       "use strict";
 
@@ -23,6 +23,7 @@ define(function () {
         'label': ' ',
         'url': '',
         'value': '',
+        'onclick': '',
         'gk-id': '',
         'gk-format': '',
         'gk-decorator': '',
@@ -107,6 +108,23 @@ define(function () {
         }
       };
 
+      var _dateFormatter = function (fmt, val) {
+        var y = parseInt(val.slice(0, 4)) - 1911,
+            o = {
+              "m+": parseInt(val.slice(4, 6)),
+              "d+": parseInt(val.slice(6))
+            };
+        if (/(y+)/.test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (y + "").substr(3 - RegExp.$1.length));
+        }
+        for (var k in o) {
+          if (new RegExp("(" + k + ")").test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+          }
+        }
+        return fmt;
+      };
+
       var _doEdittype = function (settings, gridId, decKey, value) {
         switch (value) {
           case "textarea":
@@ -115,9 +133,15 @@ define(function () {
           case "date":
             var fmt = 'Y/m/d',
                 format = settings["gk-format"].toLowerCase(),
-                newFormatParseRe;
+                newFormatParseRe,
+                cYearReg = /[y|Y]{4}/g,
+                isCY = false;
+
             if (format.length > 0) {
-              fmt = format.replace(/yyyy|yyy/g, "Y");
+              if (format.match(cYearReg)) {
+                isCY = true;
+              }
+              fmt = format.replace(/yyyy|yyy|yy/g, "Y");
               fmt = fmt.replace("mm", "m");
               fmt = fmt.replace("dd", "d");
             }
@@ -128,7 +152,13 @@ define(function () {
               }
               return parseInt(cell, 10);
             };
-            settings["formatter"] = "date";
+            if (isCY) {
+              settings["formatter"] = "date";
+            } else {
+              settings["formatter"] = function (cellval, opts, rwd, act) {
+                return _dateFormatter(format, cellval);
+              };
+            }
             settings["unformat"] = function (cellvalue, options) {
               var op = $.extend(true, {}, options.colModel);
               op.formatoptions.parseRe = newFormatParseRe;
@@ -137,7 +167,7 @@ define(function () {
             settings["formatoptions"] = {
               srcformat: 'Ymd',
               newformat: fmt,
-              parseRe: /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/
+              parseRe: /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/g
             };
             break;
           case "label":
@@ -168,17 +198,28 @@ define(function () {
             break;
           case "radio":
             settings[decKey] = "radio";
-            settings["edittype"] = "custom";
-            settings["editoptions"] = {custom_element: radioelem, custom_value: radiovalue};
+            settings["edittype"] = "radio";
+            settings["editable"] = false;
+            //settings["editoptions"] = {custom_element: radioelem, custom_value: radiovalue};
             //settings["formatter"] = "radio";
 
             settings["formatter"] = function (cellData, options) {
               var htmlStr = '',
                   radios = options.colModel.value.split(":");
               $.each(radios, function (idx, val) {
-                htmlStr += "<input type='radio' name='" + options.rowId + "'>" + val + "</input>";
+                htmlStr += "<input type='radio' name='" + settings['name'] + "_" + options.rowId + "'>" + val + "</input>";
               });
               return htmlStr;
+            };
+            break;
+          case "button":
+            settings[decKey] = "button";
+            settings["search"] = false;
+            settings["edittype"] = "button";
+            settings["editable"] = false;
+            settings["editoptions"] = {value: settings["label"]};
+            settings["formatter"] = function (cellData, options) {
+              return "<input type='button' name='" + cellData + "' value='" + settings['label'] + "' onclick='" + settings['onclick'] + "' />";
             };
             break;
           default:
@@ -189,11 +230,11 @@ define(function () {
 
       var _getDateParseRe = function (format) {
         var ft = String(format).toLowerCase(),
-          rg = /[^ymd]/g,
-          idx = [],
-          finalstr = ft,
-          re = /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/,
-          i, a, b, c;
+            rg = /[^ymd]/g,
+            idx = [],
+            finalstr = ft,
+            re = /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/,
+            i, a, b, c;
 
         try {
           if (ft.length > 0) {

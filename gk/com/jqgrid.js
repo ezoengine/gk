@@ -184,16 +184,16 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         return val;
       };
 
-      var _onEvent = function ($el) {
+      var _onEvent = function () {
         if (_record['gk-onRow']) {
-          $el.on('jqGridSelectRow', function () {
+          $ele.on('jqGridSelectRow', function () {
             if (isgk) {
               gk.event(_record['gk-onRow']);
             }
           });
         }
         if (_record['gk-init']) {
-          $el.on('jqGridInitGrid', function () {
+          $ele.on('jqGridInitGrid', function () {
             if (isgk) {
               gk.event(_record['gk-init']);
             }
@@ -493,7 +493,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
             self.height(height);
             jqgrid_override();
           });
-          _onEvent($ele);
+          _onEvent();
           $ele.jqGrid(settings);
         } else {
           return $ele.jqGrid(arguments[0], arguments[1], arguments[2]);
@@ -586,13 +586,13 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
         return data;
       };
 
-      this.selectRow = function () {
-        var rowids = this.$ele.jqGrid("getGridParam", "selarrrow");
-        var rowdata = [],
+      this.select = function () {
+        var rowids = $ele.jqGrid("getGridParam", "selarrrow"),
+            rowdata = [],
             data;
         if (rowids.length > 0) {
           for (var i = 0, len = rowids.length; i < len; i++) {
-            data = this.$ele.jqGrid("getRowData", rowids[i]);
+            data = $ele.jqGrid("getRowData", rowids[i]);
             data.id = data.id ? data.id : rowids[i];
             rowdata.push(data);
           }
