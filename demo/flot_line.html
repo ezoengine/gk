@@ -6,7 +6,7 @@
     <script src='../gk/lib/require/require.min.js'></script>
     <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
     <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
-    <script gk-tags='lineflotchart' src='../gk/gk-loader.js'></script>
+    <script gk-tags='flot-line' src='../gk/gk-loader.js'></script>
     <script type="text/javascript">
       var lineChartInfos;
       var options = {
@@ -45,13 +45,13 @@
 </head>
 <body gk-app>
     <span>鋼鐵價格</span><button id="delChart">刪除圖一</button>
-    <lineflotchart id="placeholder" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月(圖一)" 
-  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></lineflotchart>
-    <lineflotchart id="placeholder2" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖" 
-  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></lineflotchart>
-  	<lineflotchart id="placeholder3" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖" 
-  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></lineflotchart>
-  	<lineflotchart id="placeholder4" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖" 
-  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></lineflotchart>
+    <flot-line id="placeholder" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月(圖一)"
+  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></flot-line>
+    <flot-line id="placeholder2" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖"
+  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></flot-line>
+  	<flot-line id="placeholder3" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖"
+  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></flot-line>
+  	<flot-line id="placeholder4" width="500px" height="300px" xlabel="選取類別內銷-CGI建材類-燁輝，選取期間102.1~7月，顯示上圖"
+  	ylabel="每單位價格" labelPlacement="above" showPoints="true" showLabels="true"></flot-line>
 </body>
 </html>
