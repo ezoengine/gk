@@ -1,3 +1,4 @@
-.ui-jqgrid .gk-column {text-overflow:ellipsis; white-space: nowrap !important; overflow: hidden;}
-.ui-jqgrid tr[class$='gk-row-alt'] {background:#eff2e5;}
-.ui-jqgrid .ui-jqgrid-view {font-size:15px !important;}
+.ui-jqgrid .gk-column {text-overflow: ellipsis;white-space: nowrap !important;overflow: hidden;}
+.ui-jqgrid tr[class$='gk-row-alt'] {background: #eff2e5;}
+.ui-jqgrid .ui-jqgrid-view {font-size: 15px !important;}
+.ui-jqgrid .ui-jqgrid-titlebar {font-size: 15px !important;}

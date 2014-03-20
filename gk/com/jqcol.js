@@ -159,6 +159,11 @@ define(function () {
                 return _dateFormatter(format, cellval);
               };
             }
+            settings["editoptions"] = {
+              dataInit: function (el) {
+                $(el).datepicker();
+              }
+            };
             settings["unformat"] = function (cellvalue, options) {
               var op = $.extend(true, {}, options.colModel);
               op.formatoptions.parseRe = newFormatParseRe;

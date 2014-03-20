@@ -4,7 +4,8 @@ requirejs.config({
   paths: {
     'jqgrid_core': 'lib/jqgrid/js/jquery.jqGrid.src',
     'jqgrid_i18n_tw': 'lib/jqgrid/js/i18n/grid.locale-tw',
-    'blockUI': 'lib/blockUI/jquery.blockUI.min'
+    'blockUI': 'lib/blockUI/jquery.blockUI.min',
+    'jquery_ui': 'lib/jquery-ui/jquery-ui-1.10.4.custom.min'
   },
   shim: {
     'jqgrid_i18n_tw': {
@@ -14,7 +15,7 @@ requirejs.config({
 });
 
 // define module (component)
-define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/css/jquery-ui-1.10.2.custom.min', 'css!./jqgrid/css/ui.jqgrid.gk', 'css!lib/jqgrid/css/ui.jqgrid'], function (jqcolend) {
+define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'jquery_ui', 'css!../lib/jquery-ui/css/custom/jquery-ui-1.10.4.custom.min', 'css!./jqgrid/css/ui.jqgrid.gk', 'css!lib/jqgrid/css/ui.jqgrid'], function (jqcolend) {
   if ($ && $.gk && typeof $.gk.registry === "function") {
     $.gk.registry("jqcolend", jqcolend);
   }
@@ -653,7 +654,7 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'css!./jqgrid/
           $ele.trigger("reloadGrid", [{
             current: true
           }]);
-          _setupFrozenRoof();
+          _setupFrozenRoof(true);
         } else if (!val || val === 'false') {
           $ele.jqGrid("destroyFrozenColumns");
         }
