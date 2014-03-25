@@ -5,17 +5,21 @@ requirejs.config({
     'jqgrid_core': 'lib/jqgrid/js/jquery.jqGrid.src',
     'jqgrid_i18n_tw': 'lib/jqgrid/js/i18n/grid.locale-tw',
     'blockUI': 'lib/blockUI/jquery.blockUI.min',
-    'jquery_ui': 'lib/jquery-ui/jquery-ui-1.10.4.custom.min'
+    'jshashtable': 'lib/jshashtable-3.0',
+    'jquery_numFmt': 'lib/jquery/jquery.numberformatter-1.2.4.jsmin'
   },
   shim: {
     'jqgrid_i18n_tw': {
       deps: ['jqgrid_core']
+    },
+    'jquery_numFmt': {
+      deps: ['jshashtable']
     }
   }
 });
 
 // define module (component)
-define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'jquery_ui', 'css!../lib/jquery-ui/css/custom/jquery-ui-1.10.4.custom.min', 'css!./jqgrid/css/ui.jqgrid.gk', 'css!lib/jqgrid/css/ui.jqgrid'], function (jqcolend) {
+define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'jshashtable', 'jquery_numFmt', 'css!./jqgrid/css/ui.jqgrid.gk', 'css!lib/jqgrid/css/ui.jqgrid'], function (jqcolend) {
   if ($ && $.gk && typeof $.gk.registry === "function") {
     $.gk.registry("jqcolend", jqcolend);
   }
@@ -142,6 +146,18 @@ define(['./jqcolend', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 'jquery_ui', '
                       keys: true,
                       aftersavefunc: function () {
                         lastSelectRowId = null;
+                      },
+                      afterrestorefunc: function () {
+                        lastSelectRowId = null;
+                      },
+                      oneditfunc: function () {
+                        // bind textarea ctrl+enter to save row
+                        $('#' + id + ' td textarea', this.grid.bDiv).on('keydown', function(e) {
+                          if (e.keyCode === 13 && e.ctrlKey) {
+                            $grid.jqGrid('saveRow', lastSelectRowId, false, 'clientArray');
+                            lastSelectRowId = null;
+                          }
+                        });
                       }
                     });
                     lastSelectRowId = id;

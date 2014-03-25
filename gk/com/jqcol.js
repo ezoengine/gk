@@ -1,6 +1,6 @@
 define(function () {
   return {
-    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' onclick='{{onclick}}'><content></content></div>",
+    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' maxlength='{{maxlength}}' onclick='{{onclick}}'><content></content></div>",
     script: function () {
       "use strict";
 
@@ -23,6 +23,7 @@ define(function () {
         'label': ' ',
         'url': '',
         'value': '',
+        'maxlength': '',
         'onclick': '',
         'gk-id': '',
         'gk-format': '',
@@ -51,9 +52,9 @@ define(function () {
 
       var _extendAttrs = function (settings, settingsGK, gridId) {
         var val = $.extend({}, _defaultNoEdit, _default),
-          valGK = $.extend({}, _defaultGK),
-          rg = /\${.*}/i,
-          rgPrefix = /gk-/i;
+            valGK = $.extend({}, _defaultGK),
+            rg = /\${.*}/i,
+            rgPrefix = /gk-/i;
 
         $.each(settings, function (key, value) {
           if (!rg.test(value + "") && value !== undefined) {
@@ -72,14 +73,12 @@ define(function () {
           }
           var decKey = key.replace(rgPrefix, "");
           switch (key) {
-          case "gk-hidden":
-            (value === "true") && (val[decKey] = true);
-            break;
-          case "gk-edittype":
-            _doEdittype(val, gridId, decKey, value);
-            break;
-          default:
-            break;
+            case "gk-hidden":
+              (value === "true") && (val[decKey] = true);
+              break;
+            case "gk-edittype":
+              _doEdittype(val, gridId, decKey, value);
+              break;
           }
         });
 
@@ -127,8 +126,33 @@ define(function () {
 
       var _doEdittype = function (settings, gridId, decKey, value) {
         switch (value) {
+          case "text":
+            settings["editoptions"] = {
+              maxlength: settings["maxlength"]
+            };
+            break;
+          case "number":
+            settings[decKey] = "text";
+            settings["formatter"] = function (cellval, opts, rwd, act) {
+              return $.formatNumber(cellval, {format: settings["gk-format"], locale: "tw"});
+            };
+            settings["unformat"] = function (cellval, opts) {
+              return $.parseNumber(cellval, {format: settings["gk-format"], locale: "tw"});
+            };
+            settings["editrules"] = {
+              number: true
+            };
+            settings["editoptions"] = {
+              maxlength: settings["maxlength"]
+            };
+            break;
           case "textarea":
             settings[decKey] = value;
+            settings["formatter"] = "textarea";
+            settings["editoptions"] = {
+              rows: 2,
+              cols: 10
+            };
             break;
           case "date":
             var fmt = 'Y/m/d',
@@ -160,14 +184,24 @@ define(function () {
               };
             }
             settings["editoptions"] = {
+              size: 15,
               dataInit: function (el) {
-                $(el).datepicker();
+                $(el).datepicker({
+                  dateFormat: 'dd-mm-yy',
+                  showOn: 'button',
+                  changeYear: true,
+                  changeMonth: true,
+                  showButtonPanel: true,
+                  showWeek: true
+                });
+                $('.ui-datepicker').css('font-size', '12px');
               }
+              //defaultValue: function () {}
             };
-            settings["unformat"] = function (cellvalue, options) {
-              var op = $.extend(true, {}, options.colModel);
+            settings["unformat"] = function (cellval, opts) {
+              var op = $.extend(true, {}, opts.colModel);
               op.formatoptions.parseRe = newFormatParseRe;
-              return $.unformat.date.call(this, cellvalue, op);
+              return $.unformat.date.call(this, cellval, op);
             };
             settings["formatoptions"] = {
               srcformat: 'Ymd',
@@ -185,7 +219,6 @@ define(function () {
             break;
           case "select":
             settings[decKey] = "select";
-            settings["edittype"] = "select";
             if (settings["url"]) {
               settings["editoptions"] = {dataUrl: settings["url"]};
             } else {
@@ -194,7 +227,6 @@ define(function () {
             break;
           case "checkbox":
             settings[decKey] = "checkbox";
-            settings["edittype"] = "checkbox";
             settings["editoptions"] = {value: settings["value"]};
             settings["formatter"] = "checkbox";
             settings["formatoptions"] = {
@@ -203,7 +235,6 @@ define(function () {
             break;
           case "radio":
             settings[decKey] = "radio";
-            settings["edittype"] = "radio";
             settings["editable"] = false;
             //settings["editoptions"] = {custom_element: radioelem, custom_value: radiovalue};
             //settings["formatter"] = "radio";
@@ -220,14 +251,11 @@ define(function () {
           case "button":
             settings[decKey] = "button";
             settings["search"] = false;
-            settings["edittype"] = "button";
             settings["editable"] = false;
             settings["editoptions"] = {value: settings["label"]};
             settings["formatter"] = function (cellData, options) {
               return "<input type='button' name='" + cellData + "' value='" + settings['label'] + "' onclick='" + settings['onclick'] + "' />";
             };
-            break;
-          default:
             break;
         }
         return settings;

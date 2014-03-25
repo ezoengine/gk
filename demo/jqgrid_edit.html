@@ -31,12 +31,12 @@
 <body gk-app>
 <jqgrid id='jq' gridview="true" checkbox='true' filtertoolbar="true" page='true' pagesize='20' pagesizelist='10,20'
         roweditor='true' headervisible='true' heading='title' width='1200' height='300' shrinkToFit="false">
-  <jqcol label='Amount' width='100' editable='false' name='amount'></jqcol>
+  <jqcol label='Amount' type="number" align="right" width='100' editable='true' name='amount' maxlength="7" format="#,###.00"></jqcol>
   <jqcol label='Tax' type="button" width='100' editable='true' name='tax' onclick="taxClicked()"></jqcol>
   <jqcol label="已銷帳" type="checkbox" value="true:false" width="100" editable="true" name="writeoff"></jqcol>
   <jqcol label="方案" type="radio" value="方案A:方案B" width="120" editable="true" name="solution"></jqcol>
   <jqcol label='日期' type="date" format="mm-dd-YYY" width='200' editable='true' name='invdate'></jqcol>
-  <jqcol label='Client' width='100' editable='true' name='name'></jqcol>
+  <jqcol label='Client' type="textarea" width='100' editable='true' name='name'></jqcol>
   <jqcol label='Total' type="select" url="selectList.html" value="1:11;2:22" width='300' editable='true' name='total'></jqcol>
   <jqcol label='Notes' type="select" url="" value="a:aa;b:bb" width='100' editable='true' name='note'></jqcol>
 </jqgrid>
