@@ -1,3 +1,8 @@
+Contact email
+=============
+marty.shu@gmail.com
+
+
 What is GK ?
 ============
 GK provides dozens of custom components for you that design and markup web apps. Actually, you can create your own custom HTML tag by GK.
