@@ -21,9 +21,18 @@ define(['../lib/jquery-ui/jquery-ui-1.10.4.custom.min', 'css!../lib/jquery-ui/cs
     dayNamesMin: ['日','一','二','三','四','五','六'],
     dayStatus: '設定每周第一天',
     dateStatus: '選擇 m月 d日, DD',
-    dateFormat: 'yy-mm-dd',
+    dateFormat: 'yymmdd',
     firstDay: 1,
     initStatus: '請選擇日期',
+    showOn: 'button',
+    changeYear: true,
+    changeMonth: true,
+    showButtonPanel: true,
+    showOtherMonths: true,
+    selectOtherMonths: true,
+    buttonImage: '/' + location.href.split('/')[3] + '/gk/lib/jquery-ui/images/calendar.png',
+    buttonImageOnly: true,
+    buttonText: '挑選日期',
     isRTL: false
   };
   $.datepicker.setDefaults($.datepicker.regional['zh-TW']);

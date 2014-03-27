@@ -8,7 +8,8 @@ define(function () {
           _gkPluginKey = "jqGrid",
           $ = window.jQuery,
           self = this,
-          $ele = self.$ele;
+          $ele = self.$ele,
+          cYearReg = /[y|Y]{4}/g;
 
       var _default = {
         'align': 'center',
@@ -108,13 +109,21 @@ define(function () {
       };
 
       var _dateFormatter = function (fmt, val) {
-        var y = parseInt(val.slice(0, 4)) - 1911,
+        var isCY = fmt.match(cYearReg) ? true : false,
+            y = isCY ? parseInt(val.slice(0, 4)) : parseInt(val.slice(0, 4)) - 1911,
             o = {
               "m+": parseInt(val.slice(4, 6)),
               "d+": parseInt(val.slice(6))
             };
         if (/(y+)/.test(fmt)) {
-          fmt = fmt.replace(RegExp.$1, (y + "").substr(3 - RegExp.$1.length));
+          if (isCY) {
+            fmt = fmt.replace(RegExp.$1, (y + "").substr(4 - RegExp.$1.length));
+          } else {
+            for (var i = 0; i < 3 - String(y).length; i++) {
+              y = "0" + String(y);
+            }
+            fmt = fmt.replace(RegExp.$1, (y + "").substr(3 - RegExp.$1.length));
+          }
         }
         for (var k in o) {
           if (new RegExp("(" + k + ")").test(fmt)) {
@@ -122,6 +131,30 @@ define(function () {
           }
         }
         return fmt;
+      };
+
+      var _twdatepicker = function () {
+        var orig_generateMonthYearHeader = $.datepicker._generateMonthYearHeader,
+            orig_get = $.datepicker._get;
+        $.extend($.datepicker, {
+          _generateMonthYearHeader: function (a, b, c, d, e, f, g, h) {
+            var htmlYearMonth = orig_generateMonthYearHeader.apply(this, [a, b, c, d, e, f, g, h]);
+            if ($(htmlYearMonth).find(".ui-datepicker-year").length > 0) {
+              htmlYearMonth = $(htmlYearMonth).find(".ui-datepicker-year").find("option").each(function (i, e) {
+                if (Number(e.value) - 1911 > 0) {
+                  $(e).text(Number(e.innerText) - 1911);
+                }
+              }).end().end().get(0).outerHTML;
+            }
+            return htmlYearMonth;
+          },
+          _get: function (a, b) {
+            a.selectedYear = a.selectedYear - 1911 < 0 ? a.selectedYear + 1911 : a.selectedYear;
+            a.drawYear = a.drawYear - 1911 < 0 ? a.drawYear + 1911 : a.drawYear;
+            a.curreatYear = a.curreatYear - 1911 < 0 ? a.curreatYear + 1911 : a.curreatYear;
+            return orig_get.apply(this, [a, b]);
+          }
+        });
       };
 
       var _doEdittype = function (settings, gridId, decKey, value) {
@@ -157,56 +190,50 @@ define(function () {
           case "date":
             var fmt = 'Y/m/d',
                 format = settings["gk-format"].toLowerCase(),
-                newFormatParseRe,
-                cYearReg = /[y|Y]{4}/g,
                 isCY = false;
 
             if (format.length > 0) {
-              if (format.match(cYearReg)) {
-                isCY = true;
-              }
               fmt = format.replace(/yyyy|yyy|yy/g, "Y");
               fmt = fmt.replace("mm", "m");
               fmt = fmt.replace("dd", "d");
+              isCY = cYearReg.test(format);
+              if (!isCY) _twdatepicker();
             }
-            newFormatParseRe = _getDateParseRe(format);
             settings["sorttype"] = function (cell) {
               if (cell.length === 0) {
                 return -1;
               }
               return parseInt(cell, 10);
             };
-            if (isCY) {
-              settings["formatter"] = "date";
-            } else {
-              settings["formatter"] = function (cellval, opts, rwd, act) {
-                return _dateFormatter(format, cellval);
-              };
-            }
-            settings["editoptions"] = {
-              size: 15,
-              dataInit: function (el) {
-                $(el).datepicker({
-                  dateFormat: 'dd-mm-yy',
-                  showOn: 'button',
-                  changeYear: true,
-                  changeMonth: true,
-                  showButtonPanel: true,
-                  showWeek: true
-                });
-                $('.ui-datepicker').css('font-size', '12px');
-              }
-              //defaultValue: function () {}
+            settings["formatter"] = function (cellval, opts, rwd, act) {
+              return _dateFormatter(format, cellval);
             };
             settings["unformat"] = function (cellval, opts) {
-              var op = $.extend(true, {}, opts.colModel);
-              op.formatoptions.parseRe = newFormatParseRe;
-              return $.unformat.date.call(this, cellval, op);
+              var year,
+                  date = $.datepicker.parseDate(format.replace(/(y+)/, 'yy'), cellval);
+              if (isCY) {
+                year = date.getFullYear();
+              } else {
+                var yearStr = String(date.getFullYear());
+                if (yearStr.length === 4) {
+                  yearStr = yearStr.slice(-2);
+                }
+                year = Number(yearStr) + 1911;
+              }
+              return year + ("0" + (date.getMonth() + 1)).slice(-2) + ("0" + date.getDate()).slice(-2);
             };
             settings["formatoptions"] = {
               srcformat: 'Ymd',
               newformat: fmt,
-              parseRe: /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/g
+              parseRe: /(\d{1,4})\/?(\d{1,2})\/?(\d{1,2})/
+            };
+            settings["editoptions"] = {
+              size: 15,
+              dataInit: function (el) {
+                $(el).datepicker();
+                $('.ui-datepicker').css('font-size', '12px');
+                $('.ui-datepicker-trigger').css('vertical-align', 'middle').css('padding-left', '2px');
+              }
             };
             break;
           case "label":
@@ -259,35 +286,6 @@ define(function () {
             break;
         }
         return settings;
-      };
-
-      var _getDateParseRe = function (format) {
-        var ft = String(format).toLowerCase(),
-            rg = /[^ymd]/g,
-            idx = [],
-            finalstr = ft,
-            re = /(\w{1,4})\/?(\w{1,2})\/?(\w{1,2})/,
-            i, a, b, c;
-
-        try {
-          if (ft.length > 0) {
-            for (rg.exec(ft); rg.lastIndex !== 0;) {
-              idx.push(rg.lastIndex);
-              rg.exec(ft);
-            }
-            for (i = idx.length - 1; i >= 0; i--) {
-              a = finalstr.substring(0, idx[i] - 1);
-              b = finalstr.substring(idx[i] - 1, idx[i]);
-              c = finalstr.substring(idx[i]);
-              finalstr = a + "\\" + b + "?" + c;
-            }
-            finalstr = finalstr.replace("yyyy", "(\\w{1,4})");
-            finalstr = finalstr.replace("mm", "(\\w{1,2})");
-            finalstr = finalstr.replace("dd", "(\\w{1,2})");
-            re = new RegExp(finalstr);
-          }
-        } catch (e) {}
-        return re;
       };
 
       var _getFmtTypeValue = function (fmtType) {

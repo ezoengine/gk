@@ -303,11 +303,11 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
 
         $.each($frozenDiv, function (idx, val) {
           if ($(val).children().attr('aria-labelledby').lastIndexOf(_id) !== -1) {
-            $(val).offset({'top': $(val).offset().top - 21});
+            $(val).offset({'top': $(val).offset().top - 26});
           }
         });
         if ($frozenBdiv.length > 0)
-          $frozenBdiv.offset({'top': $frozenBdiv.offset().top - 21});
+          $frozenBdiv.offset({'top': $frozenBdiv.offset().top - 26});
       };
 
       var jqgrid_caption = function () {
@@ -595,8 +595,8 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
       };
 
       this.row = function () {
-        var rowid = this.$ele.jqGrid("getGridParam", "selrow"),
-            data = this.$ele.jqGrid("getRowData", rowid);
+        var rowid = $ele.jqGrid("getGridParam", "selrow"),
+            data = $ele.jqGrid("getRowData", rowid);
         if (rowid) {
           data.id = data.id ? data.id : rowid;
         }
@@ -754,6 +754,27 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
             $ele.jqGrid("addRowData", "id", rdata);
           } else {
             $ele.jqGrid("addRowData", rdata.id, rdata);
+          }
+        }
+      };
+
+      this.readOnly = function (readOnly, colName, rowId) {
+        var selrow = $ele.getGridParam("selrow");
+        if (readOnly) {
+          if (colName && rowId) {
+            $ele.jqGrid("setCell", rowId, colName, "", "not-editable-cell");
+          } else if (colName) {
+            if (selrow) {
+              return $ele.jqGrid("setCell", selrow, colName, "", "not-editable-cell");
+            }
+          }
+        } else {
+          if (colName && rowId) {
+            $($ele[0].rows.namedItem(rowId).cells).filter("[aria-describedby='jq_" + colName + "']").removeClass("not-editable-cell");
+          } else if (colName) {
+            if (selrow) {
+              $($ele[0].rows.namedItem(selrow).cells).filter("[aria-describedby='jq_" + colName + "']").removeClass("not-editable-cell");
+            }
           }
         }
       };
