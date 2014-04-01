@@ -1,4 +1,6 @@
-define(['../lib/jquery-ui/jquery-ui-1.10.4.custom.min', 'css!../lib/jquery-ui/css/custom/jquery-ui-1.10.4.custom.min'], function () {
+define(['../lib/jquery-ui/jquery-ui-1.10.4.custom.min',
+        'css!../lib/jquery-ui/css/custom/jquery-ui-1.10.4.custom.min',
+        'css!./jqueryui/css/jquery-ui.gk.css'], function () {
   $.datepicker.regional['zh-TW'] = {
     clearText: '清除',
     clearStatus: '清除已選日期',

@@ -24,7 +24,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
     $.gk.registry("jqcolend", jqcolend);
   }
   return {
-    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}'>  <tbody>    <tr>      <td><content></content>        <JQColEnd/>      </td>    </tr>  </tbody></table><div id='{{id}}_pager'></div>",
+    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}' autofit='{{autofit}}'><tbody><tr><td><content></content><JQColEnd/></td></tr></tbody></table><div id='{{id}}_pager'></div>",
     script: function () {
       "use strict";
 
@@ -32,8 +32,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
           self = this,
           $ele = self.$ele,
           $ = window.jQuery,
-          isgk = !! window.gk,
-          _gkPluginKey = "jqGrid";
+          isgk = !! window.gk;
 
       // remote page grid(rpg) objects
       var rpgInfo,
@@ -57,7 +56,8 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         'rowList': [],
         'rownumbers': false,
         'gridview': false,
-        'altRows': true
+        'altRows': true,
+        'autofit': false
       };
 
       var _defaultGK = {
@@ -481,6 +481,20 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         _setupFrozenRoof(true);
       };
 
+      var _resize = function () {
+        var _doResize;
+        (_doResize = function() {
+          var container = $ele.closest('.ui-jqgrid').parent(),
+              width = container.width(),
+              height = container.height();
+          $ele.gk('width', width);
+          $ele.gk('height', height);
+        })();
+        $(window).on('resize', function() {
+          _doResize();
+        });
+      };
+
       this.init = function () {
         var settings, settingsGK;
 
@@ -516,6 +530,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
           return $ele.jqGrid(arguments[0], arguments[1], arguments[2]);
         }
         $ele.triggerHandler("gk.jqGridInit");
+        if (_record["autofit"]) _resize();
       };
 
       this.width = function (width) {

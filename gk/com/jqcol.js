@@ -1,6 +1,6 @@
 define(function () {
   return {
-    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' maxlength='{{maxlength}}' onclick='{{onclick}}'><content></content></div>",
+    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' maxlength='{{maxlength}}' allowblank='{{allowblank}}' onclick='{{onclick}}' onfocus='{{onfocus}}'><content></content></div>",
     script: function () {
       "use strict";
 
@@ -25,7 +25,9 @@ define(function () {
         'url': '',
         'value': '',
         'maxlength': '',
+        'allowblank': true,
         'onclick': '',
+        'onfocus': '',
         'gk-id': '',
         'gk-format': '',
         'gk-decorator': '',
@@ -62,7 +64,6 @@ define(function () {
             val[key] = value;
           }
         });
-
         $.each(settingsGK, function (key, value) {
           if (!rg.test(value + "") && value !== undefined) {
             valGK[key] = value;
@@ -89,21 +90,12 @@ define(function () {
         return val;
       };
 
-      var radioelem = function (cellData, options) {
-        var htmlStr = '',
-            radios = _record.value.split(":");
-        $.each(radios, function (idx, val) {
-          htmlStr += "<input type='radio' name='" + options.id + "'>" + val + "</input>";
-        });
-        return htmlStr;
-      };
-
-      var radiovalue = function (elem, operation, value) {
-        if (operation === 'get') {
-          return $(elem).val();
-        } else if (operation === 'set') {
-          if ($(elem).is(':checked') === false) {
-            $(elem).filter('[value=' + value + ']').attr('checked', true);
+      var _setCommonAttrs = function (settings) {
+        if (!_parseBoolean(settings["allowblank"])) {
+          if (settings["editrules"]) {
+            settings["editrules"]["required"] = true;
+          } else {
+            settings["editrules"] = {required: true};
           }
         }
       };
@@ -189,15 +181,19 @@ define(function () {
             break;
           case "date":
             var fmt = 'Y/m/d',
+                yFmtReg = /(y+)/,
                 format = settings["gk-format"].toLowerCase(),
                 isCY = false;
-
+            // only support 'yyy' and 'yyyy' year format
             if (format.length > 0) {
-              fmt = format.replace(/yyyy|yyy|yy/g, "Y");
+              fmt = format.replace(yFmtReg, "Y");
               fmt = fmt.replace("mm", "m");
               fmt = fmt.replace("dd", "d");
               isCY = cYearReg.test(format);
-              if (!isCY) _twdatepicker();
+              if (!isCY) {
+                _twdatepicker();
+                format = format.replace(yFmtReg, 'yyy');
+              }
             }
             settings["sorttype"] = function (cell) {
               if (cell.length === 0) {
@@ -210,7 +206,7 @@ define(function () {
             };
             settings["unformat"] = function (cellval, opts) {
               var year,
-                  date = $.datepicker.parseDate(format.replace(/(y+)/, 'yy'), cellval);
+                  date = $.datepicker.parseDate(format.replace(yFmtReg, 'yy'), cellval);
               if (isCY) {
                 year = date.getFullYear();
               } else {
@@ -260,32 +256,44 @@ define(function () {
               disabled: false
             };
             break;
-          case "radio":
-            settings[decKey] = "radio";
-            settings["editable"] = false;
-            //settings["editoptions"] = {custom_element: radioelem, custom_value: radiovalue};
-            //settings["formatter"] = "radio";
-
-            settings["formatter"] = function (cellData, options) {
-              var htmlStr = '',
-                  radios = options.colModel.value.split(":");
-              $.each(radios, function (idx, val) {
-                htmlStr += "<input type='radio' name='" + settings['name'] + "_" + options.rowId + "'>" + val + "</input>";
-              });
-              return htmlStr;
-            };
-            break;
           case "button":
             settings[decKey] = "button";
             settings["search"] = false;
             settings["editable"] = false;
             settings["editoptions"] = {value: settings["label"]};
-            settings["formatter"] = function (cellData, options) {
+            settings["formatter"] = function (cellData) {
               return "<input type='button' name='" + cellData + "' value='" + settings['label'] + "' onclick='" + settings['onclick'] + "' />";
             };
             break;
+          case "image":
+            settings[decKey] = "image";
+            settings["editable"] = false;
+            settings["search"] = false;
+            settings["formatter"] = function () {
+              return "<img src='" + settings['value'] + "' title='" + settings['label'] + "' />";
+            };
+          case "trigger":
+            settings[decKey] = "custom";
+            settings["editoptions"] = {custom_element: triggerelem, custom_value: triggervalue};
         }
+        _setCommonAttrs(settings, gridId, decKey, value);
         return settings;
+      };
+
+      var triggerelem = function (cellData, options) {
+        var htmlStr = "<input type='text' style='width:90%' name='" + options.id + "' value='" + cellData + "'";
+        if (_record.onfocus) {
+          htmlStr += " onfocus='" + _record.onfocus + "'";
+        }
+        return htmlStr += " />";
+      };
+
+      var triggervalue = function (elem, operation, value) {
+        if (operation === 'get') {
+          return $(elem).val();
+        } else if (operation === 'set') {
+
+        }
       };
 
       var _getFmtTypeValue = function (fmtType) {

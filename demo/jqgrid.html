@@ -21,19 +21,20 @@
         });
       }
       $('#jq').gk('render', mydata);
-
     });
   </script>
 </head>
 <body gk-app>
-<jqgrid id='jq' gridview="true" checkbox='true' filtertoolbar="true" page='true' pagesize='10' pagesizelist='10,20'
-        roweditor='true' headervisible='true' heading='title' width='700' height='500'>
-  <jqcol label='Amount' frozen='true' width='100' celleditor='false' name='amount'></jqcol>
-  <jqcol label='Tax' frozen='true' width='100' celleditor='false' name='tax'></jqcol>
-  <jqcol label='日期' type="date" format="mm-dd-YYY" width='200' cellEditor='false' name='invdate'></jqcol>
-  <jqcol label='Client' width='100' celleditor='true' name='name'></jqcol>
-  <jqcol label='Total' width='300' celleditor='false' name='total'></jqcol>
-  <jqcol label='Notes' width='100' celleditor='false' name='note'></jqcol>
+<div style="width: 750px;height: 300px;">
+<jqgrid id='jq' autofit="true" gridview="true" checkbox='true' filtertoolbar="true" page='true' pagesize='10' pagesizelist='10,20'
+        headervisible='true' heading='title' width='1200' height='700'>
+  <jqcol label='Amount' frozen='true' width='100' name='amount'></jqcol>
+  <jqcol label='Tax' frozen='true' width='100' name='tax'></jqcol>
+  <jqcol label='日期' type="date" format="mm-dd-YYY" width='200' name='invdate'></jqcol>
+  <jqcol label='Client' width='100' name='name'></jqcol>
+  <jqcol label='Total' width='300' name='total'></jqcol>
+  <jqcol label='Notes' width='100' name='note'></jqcol>
 </jqgrid>
+</div>
 </body>
 </html>
