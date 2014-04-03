@@ -27,6 +27,16 @@
     }
   }
 
+  function getKeys(o) {
+    var a = [];
+    for (var p in o) {
+      if (o.hasOwnProperty(p)) {
+        a.push(p);
+      }
+    }
+    return a;
+  }
+
   function getScript() {
     var scs = document.getElementsByTagName('script');
     for (var i = scs.length - 1; i > -1; i -= 1) {
@@ -52,7 +62,7 @@
   function checkRegistry() {
     each(['_', context], function (ctx) {
       var registry = requirejs.s.contexts[ctx].registry;
-      each(Object.keys(registry), function (com) {
+      each(getKeys(registry), function (com) {
         var factory = registry[com].factory;
         defined[com] = typeof factory === 'function' ? factory() : factory;
         delete registry[com];

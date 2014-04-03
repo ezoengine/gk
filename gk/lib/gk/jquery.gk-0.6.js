@@ -3,6 +3,13 @@
   var $ = window.jQuery;
   $ && func(window, window.document, $);
 })(window, function (window, document, $, undefined) {
+  (function (){
+    if (typeof String.prototype.trim !== 'function') {
+      String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+      }
+    }
+  })();
   var __extends = function (d, b) {
     function __() {
       this.constructor = d;
