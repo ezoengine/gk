@@ -37,7 +37,7 @@
   </script>
 </head>
 <body gk-app>
-<span>語法：$('#jq').gk('setCell', colName, cellData); ==> 只傳入兩個參數，第一個參數視為欄位名稱，第二個參數為輸入值，rowId則取自點選row，若未選擇任何資料，則回傳false</span><br>
+<span>語法：$('#jq').gk('setCell', colName, null, cellData); ==> 傳入三個參數，第一個參數為欄位名稱，第二個參數指定為null，表示點選列為設定目標，第三個參數為輸入值，找不到資料則回傳false</span><br>
 <span>語法：$('#jq').gk('setCell', colName, rowId, cellData); ==> 傳入三個參數，第一個參數為欄位名稱，第二個參數為rowId，第三個參數為輸入值，找不到資料則回傳false</span><br>
 <button id="row">設定Client欄位的Cell資料(請先點選某一比資料)</button>
 <button id="row5">設定Client欄位的第五比Cell資料</button>

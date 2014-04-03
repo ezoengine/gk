@@ -206,6 +206,8 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
           $ele.on('jqGridSelectRow', function () {
             if (isgk) {
               gk.event(_record['gk-onRow']);
+            } else {
+              eval(_record['gk-onRow']);
             }
           });
         }
@@ -213,6 +215,8 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
           $ele.on('jqGridInitGrid', function () {
             if (isgk) {
               gk.event(_record['gk-init']);
+            } else {
+              eval(_record['gk-init']);
             }
           });
         }

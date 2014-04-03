@@ -8,8 +8,14 @@
   <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
   <script gk-tags='jqcol,jqcolend,jqgrid' src='../gk/gk-loader.js'></script>
   <script>
+
+    var done = function () {
+      alert('jqGrid init done.');
+    };
+
     $(document).on('gkComponentsReady', function (w) {
       var mydata = [];
+
       for (var i = 0; i < 20; i++) {
         mydata.push({
           'invdate': '20140226',
@@ -27,7 +33,7 @@
 <body gk-app>
 <div style="width: 750px;height: 300px;">
 <jqgrid id='jq' autofit="true" gridview="true" checkbox='true' filtertoolbar="true" page='true' pagesize='10' pagesizelist='10,20'
-        headervisible='true' heading='title' width='1200' height='700'>
+        headervisible='true' heading='title' width='1200' height='700' init="done()">
   <jqcol label='Amount' frozen='true' width='100' name='amount'></jqcol>
   <jqcol label='Tax' frozen='true' width='100' name='tax'></jqcol>
   <jqcol label='日期' type="date" format="mm-dd-YYY" width='200' name='invdate'></jqcol>
