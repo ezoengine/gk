@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='initial-scale=1.0, user-scalable=no' />
+  <script src='../gk/lib/require/require.min.js'></script>
+  <script src='../gk/lib/jquery/jquery-1.9.1.min.js'></script>
+  <script src='../gk/lib/gk/jquery.gk-0.6.min.js'></script>
+  <script gk-tags='uibutton' src='../gk/gk-loader.js'></script>
+</head>
+
+<body>
+  <h3>Button1</h3>
+  <div is='uibutton' label='新增' value='1'></div>
+  <div id='btn1' is='uibutton' label='刪除確認' confirm='true' value='2' />
+  <div is='uibutton' label='Disable' disable='true'></div>
+
+  <h3>Button2</h3>
+  <input type='button' onclick='$("#btn2").gk("disable", true);' value='Disable'>
+  <input type='button' onclick='$("#btn2").gk("disable", false);' value='Enable'>
+  <input type='button' onclick='$("#btn2").gk("label", "改標題");' value='標題'>
+  <div id='btn2' is='uibutton' label='修改'></div>
+  <script>
+  $(document).on('gkComponentsReady', function() {
+    $('#btn1').on('click', function() {
+      alert('刪除');
+    });
+  });
+  </script>
+</body>
+
+</html>
