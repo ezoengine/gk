@@ -12,7 +12,7 @@ requirejs.config({
 });
 
 // define module (component)
-define(['jquery.ui.dialogextend', 'css!lib/jquery-ui/css/start/jquery-ui-1.10.4.custom.css'], function () {
+define(['jquery.ui.dialogextend', 'css!lib/jquery-ui/css/custom/jquery-ui-1.10.4.custom.css'], function () {
   return {
     template: '<div id="{{id}}"><content></content></div>',
     script: function () {
