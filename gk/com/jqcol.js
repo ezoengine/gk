@@ -261,16 +261,22 @@ define(function () {
             settings["search"] = false;
             settings["editable"] = false;
             settings["editoptions"] = {value: settings["label"]};
-            settings["formatter"] = function (cellData) {
-              return "<input type='button' name='" + cellData + "' value='" + settings['label'] + "' onclick='" + settings['onclick'] + "' />";
+            settings["formatter"] = function (cellval) {
+              return "<input type='button' name='" + cellval + "' value='" + settings['label'] + "' onclick='" + settings['onclick'] + "' />";
             };
             break;
           case "image":
             settings[decKey] = "image";
             settings["editable"] = false;
             settings["search"] = false;
-            settings["formatter"] = function () {
-              return "<img src='" + settings['value'] + "' title='" + settings['label'] + "' />";
+            settings["formatter"] = function (cellval) {
+              var imgSrc;
+              if (cellval) {
+                imgSrc = cellval;
+              } else {
+                imgSrc = settings['value'];
+              }
+              return "<img src='" + imgSrc + "' title='" + settings['label'] + "' />";
             };
           case "trigger":
             settings[decKey] = "custom";
