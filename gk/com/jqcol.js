@@ -1,6 +1,6 @@
 define(function () {
   return {
-    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' maxlength='{{maxlength}}' allowblank='{{allowblank}}' onclick='{{onclick}}' onfocus='{{onfocus}}'><content></content></div>",
+    template: "<div id='{{id}}' gk-decorator='{{decorator}}' gk-undecorator='{{undecorator}}' gk-id='{{id}}' gk-format='{{format}}' gk-edittype='{{type}}' align='{{align}}' gk-hidden='{{hidden}}' sortable='{{sortable}}' frozen='{{frozen}}' label='{{label}}' name='{{name}}' index='{{index}}' width='{{width}}' search='{{search}}' editable='{{editable}}' url='{{url}}' value='{{value}}' maxlength='{{maxlength}}' allowblank='{{allowblank}}' onclick='{{onclick}}' onfocus='{{onfocus}}' onchange='{{onchange}}'><content></content></div>",
     script: function () {
       "use strict";
 
@@ -28,6 +28,7 @@ define(function () {
         'allowblank': true,
         'onclick': '',
         'onfocus': '',
+        'onchange': '',
         'gk-id': '',
         'gk-format': '',
         'gk-decorator': '',
@@ -247,6 +248,13 @@ define(function () {
             } else {
               settings["editoptions"] = {value: settings["value"]};
             }
+            settings["editoptions"].dataEvents = [{
+              type: 'change',
+              fn: function (e) {
+                var exec = new Function(settings['onchange']);
+                exec();
+              }
+            }];
             break;
           case "checkbox":
             settings[decKey] = "checkbox";

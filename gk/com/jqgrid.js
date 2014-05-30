@@ -636,6 +636,14 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         return rowdata;
       };
 
+      this.list = function () {
+        return $ele.jqGrid("getGridParam", "data");
+      };
+
+      this.clear = function () {
+        $ele.jqGrid("clearGridData", true).trigger("reloadGrid");
+      };
+
       this.render = function (args) {
         if (!$ele.jqGrid("getGridParam")) {
           // support jqgrid of html
@@ -775,6 +783,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
             $ele.jqGrid("addRowData", rdata.id, rdata);
           }
         }
+        $ele.trigger("reloadGrid");
       };
 
       this.readOnly = function (readOnly, colName, rowId) {
