@@ -24,7 +24,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
     $.gk.registry("jqcolend", jqcolend);
   }
   return {
-    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}' autofit='{{autofit}}'><tbody><tr><td><content></content><JQColEnd/></td></tr></tbody></table><div id='{{id}}_pager'></div>",
+    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}' autofit='{{autofit}}' onaftersearch='{{onaftersearch}}' onafterclear='{{onafterclear}}' onbeforesearch='{{onbeforesearch}}'><tbody><tr><td><content></content><JQColEnd/></td></tr></tbody></table><div id='{{id}}_pager'></div>",
     script: function () {
       "use strict";
 
@@ -57,7 +57,10 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         'rownumbers': false,
         'gridview': false,
         'altRows': true,
-        'autofit': false
+        'autofit': false,
+        'onbeforesearch': '',
+        'onaftersearch': '',
+        'onafterclear': ''
       };
 
       var _defaultGK = {
@@ -704,13 +707,23 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
       };
 
       this.filterToolbar = function (args) {
+        var settings = self.options;
         if (args | args === 'true') {
           $ele.jqGrid('filterToolbar', {
             searchOnEnter: false,
             enableClear: false,
             defaultSearch: 'cn',
             beforeSearch: function () {
-              // could be customize the postData
+              var exec = new Function(settings['onbeforesearch']);
+              exec();
+            },
+            afterSearch: function () {
+              var exec = new Function(settings['onaftersearch']);
+              exec();
+            },
+            afterClear: function () {
+              var exec = new Function(settings['onafterclear']);
+              exec();
             }
           });
         } else {
