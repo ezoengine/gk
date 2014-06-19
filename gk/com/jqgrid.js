@@ -24,15 +24,14 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
     $.gk.registry("jqcolend", jqcolend);
   }
   return {
-    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}' autofit='{{autofit}}' onaftersearch='{{onaftersearch}}' onafterclear='{{onafterclear}}' onbeforesearch='{{onbeforesearch}}'><tbody><tr><td><content></content><JQColEnd/></td></tr></tbody></table><div id='{{id}}_pager'></div>",
+    template: "<table id='{{id}}' altRows='{{stripe}}' gridview='{{gridview}}' gk-headervisible='{{headervisible}}' gk-init='{{init}}' rownumbers='{{seqposition}}' gk-onRow='{{onrow}}' onDblClickRow='{{ondblclickrow}}' gk-pager='{{page}}' rowNum='{{pagesize}}' gk-rowList='{{pagesizelist}}' gk-rowEditor='{{roweditor}}' filterToolbar='{{filtertoolbar}}' gk-height='{{height}}' gk-width='{{width}}' multiselect='{{checkbox}}' caption='{{heading}}' shrinkToFit='{{shrinktofit}}' autofit='{{autofit}}' onaftersearch='{{onaftersearch}}' onafterclear='{{onafterclear}}' onbeforesearch='{{onbeforesearch}}'><tbody><tr><td><content></content><JQColEnd/></td></tr></tbody></table><div id='{{id}}_pager'></div>",
     script: function () {
       "use strict";
 
       var _id, _record, _$jqGrid,
           self = this,
           $ele = self.$ele,
-          $ = window.jQuery,
-          isgk = !! window.gk;
+          $ = window.jQuery;
 
       // remote page grid(rpg) objects
       var rpgInfo,
@@ -60,7 +59,8 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         'autofit': false,
         'onbeforesearch': '',
         'onaftersearch': '',
-        'onafterclear': ''
+        'onafterclear': '',
+        'ondblclickrow': ''
       };
 
       var _defaultGK = {
@@ -207,20 +207,20 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
       var _onEvent = function () {
         if (_record['gk-onRow']) {
           $ele.on('jqGridSelectRow', function () {
-            if (isgk) {
-              gk.event(_record['gk-onRow']);
-            } else {
-              eval(_record['gk-onRow']);
-            }
+            var exec = new Function(_record['gk-onRow']);
+            exec();
           });
         }
         if (_record['gk-init']) {
           $ele.on('jqGridInitGrid', function () {
-            if (isgk) {
-              gk.event(_record['gk-init']);
-            } else {
-              eval(_record['gk-init']);
-            }
+            var exec = new Function(_record['gk-init']);
+            exec();
+          });
+        }
+        if (_record['ondblclickrow']) {
+          $ele.on('jqGridDblClickRow', function () {
+            var exec = new Function(_record['ondblclickrow']);
+            exec();
           });
         }
       };
@@ -616,26 +616,27 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         }
       };
 
-      this.row = function () {
-        var rowid = $ele.jqGrid("getGridParam", "selrow"),
-            data = $ele.jqGrid("getRowData", rowid);
-        if (rowid) {
-          data.id = data.id ? data.id : rowid;
-        }
+      this.row = function (id) {
+        var selId = $ele.jqGrid("getGridParam", "selrow"),
+            rowId = id || selId,
+            data = $ele.jqGrid("getRowData", rowId);
+        data.id = rowId;
         return data;
       };
 
-      this.select = function () {
-        var rowids = $ele.jqGrid("getGridParam", "selarrrow"),
+      this.select = function (rowid, onselectrow) {
+        var selarrrow = $ele.jqGrid("getGridParam", "selarrrow"),
             rowdata = [],
             data;
-        if (rowids.length > 0) {
-          for (var i = 0, len = rowids.length; i < len; i++) {
-            data = $ele.jqGrid("getRowData", rowids[i]);
-            data.id = data.id ? data.id : rowids[i];
-            rowdata.push(data);
-          }
+        if (rowid) {
+          $ele.setSelection(rowid, onselectrow);
+          return true;
         }
+        $.each(selarrrow, function (idx, val) {
+          data = $ele.jqGrid("getRowData", val);
+          data.id = data.id ? data.id : val;
+          rowdata.push(data);
+        });
         return rowdata;
       };
 
@@ -788,7 +789,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
         }
       };
 
-      this.add = function (rdata) {
+      this.add = function (rdata, triggerReload) {
         if (rdata) {
           if ($.isArray(rdata)) {
             $ele.jqGrid("addRowData", "id", rdata);
@@ -796,7 +797,7 @@ define(['./jqcolend', './jqueryui', 'jqgrid_core', 'jqgrid_i18n_tw', 'blockUI', 
             $ele.jqGrid("addRowData", rdata.id, rdata);
           }
         }
-        $ele.trigger("reloadGrid");
+        if (triggerReload) $ele.trigger("reloadGrid");
       };
 
       this.readOnly = function (readOnly, colName, rowId) {
